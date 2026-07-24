@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 500" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F7F3EE"/>
+      <stop offset="100%" stop-color="#EFE6DC"/>
+    </linearGradient>
+
+    <!-- Wood Primary Gradient -->
+    <linearGradient id="woodGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#A2714B"/>
+      <stop offset="50%" stop-color="#8B5E3C"/>
+      <stop offset="100%" stop-color="#6F4627"/>
+    </linearGradient>
+
+    <!-- Rattan / Sage Accent Gradient -->
+    <linearGradient id="sageGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8EAFA1"/>
+      <stop offset="100%" stop-color="#7A9E7E"/>
+    </linearGradient>
+
+    <!-- Warm Highlight -->
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#F2D399"/>
+      <stop offset="100%" stop-color="#E5BC70"/>
+    </linearGradient>
+
+    <!-- Soft Drop Shadows -->
+    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#8B5E3C" flood-opacity="0.15"/>
+    </filter>
+    
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#7A9E7E" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Main Background Container -->
+  <rect width="600" height="500" rx="32" fill="url(#bgGrad)"/>
+
+  <!-- Decorative Background Circles -->
+  <circle cx="480" cy="120" r="140" fill="#7A9E7E" opacity="0.08"/>
+  <circle cx="120" cy="380" r="100" fill="#8B5E3C" opacity="0.06"/>
+  <path d="M-50,200 Q150,100 350,260 T650,150" fill="none" stroke="#8B5E3C" stroke-width="1.5" stroke-dasharray="6 6" opacity="0.2"/>
+
+  <!-- Main Backdrop Shield Card -->
+  <rect x="70" y="50" width="460" height="400" rx="24" fill="#FFFFFF" filter="url(#shadow)"/>
+
+  <!-- Decorative Craft Badge -->
+  <g transform="translate(100, 80)">
+    <rect width="130" height="32" rx="16" fill="url(#sageGrad)" filter="url(#glow)"/>
+    <text x="65" y="21" fill="#FFFFFF" font-family="Poppins, sans-serif" font-size="12" font-weight="600" text-anchor="middle">
+      Handcrafted
+    </text>
+  </g>
+
+  <!-- Artisanal Carved Wooden Vase & Basket Centerpiece Group -->
+  <g filter="url(#shadow)">
+    <!-- Woven Rattan Basket (Left) -->
+    <g transform="translate(120, 200)">
+      <!-- Basket Base & Body -->
+      <ellipse cx="80" cy="180" rx="75" ry="25" fill="#6F4627" opacity="0.2"/>
+      <path d="M25,60 C20,130 35,175 80,175 C125,175 140,130 135,60 Z" fill="url(#goldGrad)"/>
+      <!-- Woven Texture Overlay Lines -->
+      <path d="M35,80 C60,110 100,110 125,80" stroke="#8B5E3C" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M30,110 C60,140 100,140 130,110" stroke="#8B5E3C" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M35,140 C60,165 100,165 125,140" stroke="#8B5E3C" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <!-- Basket Rim -->
+      <ellipse cx="80" cy="60" rx="55" ry="16" fill="#8B5E3C"/>
+      <ellipse cx="80" cy="60" rx="46" ry="11" fill="#5C3A21"/>
+    </g>
+
+    <!-- Tall Carved Pottery / Wooden Vase (Center Right) -->
+    <g transform="translate(260, 130)">
+      <!-- Shadow under Vase -->
+      <ellipse cx="80" cy="270" rx="60" ry="18" fill="#3D2413" opacity="0.25"/>
+      <!-- Main Vase Silhouette -->
+      <path d="M50,40 
+               C30,80 15,140 25,200 
+               C35,250 125,250 135,200 
+               C145,140 130,80 110,40 Z" fill="url(#woodGrad)"/>
+      <!-- Neck & Rim -->
+      <ellipse cx="80" cy="40" rx="30" ry="9" fill="#A2714B"/>
+      <ellipse cx="80" cy="40" rx="22" ry="6" fill="#422817"/>
+      <!-- Carved Floral Pattern Lines -->
+      <path d="M45,130 Q80,100 115,130 T80,180 Z" fill="none" stroke="#F2D399" stroke-width="2.5" stroke-dasharray="4 4"/>
+      <path d="M40,160 Q80,185 120,160" fill="none" stroke="#7A9E7E" stroke-width="3" stroke-linecap="round"/>
+      <!-- Highlight Reflection -->
+      <path d="M42,70 C34,110 32,150 42,190" fill="none" stroke="#FFFFFF" stroke-width="3.5" opacity="0.3" stroke-linecap="round"/>
+    </g>
+
+    <!-- Plant Leaves emerging from Vase -->
+    <g transform="translate(310, 70)">
+      <path d="M30,70 C10,30 -20,10 -40,20 C-20,40 10,70 30,70 Z" fill="url(#sageGrad)"/>
+      <path d="M30,70 C40,20 60,-10 80,0 C65,30 45,60 30,70 Z" fill="#7A9E7E"/>
+      <path d="M30,70 C20,10 30,-20 20,-40 C10,-20 10,30 30,70 Z" fill="#9BBCA9"/>
+    </g>
+  </g>
+
+  <!-- Floating Quality Badge Floating Tag (Bottom Right) -->
+  <g transform="translate(360, 360)" filter="url(#shadow)">
+    <rect width="140" height="54" rx="14" fill="#FFFFFF"/>
+    <circle cx="32" cy="27" r="16" fill="#F7F3EE"/>
+    <path d="M32,17 L35,23 L41,24 L37,28 L38,34 L32,31 L26,34 L27,28 L23,24 L29,23 Z" fill="#8B5E3C"/>
+    <text x="56" y="24" fill="#2E2E2E" font-family="Poppins, sans-serif" font-size="11" font-weight="700">100% Original</text>
+    <text x="56" y="38" fill="#6B7280" font-family="Inter, sans-serif" font-size="10">Kerajinan Lokal</text>
+  </g>
+</svg>

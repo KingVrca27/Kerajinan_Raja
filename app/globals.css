@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+:root {
+  --primary: #9D734E;
+  --secondary: #F7F3EE;
+  --accent: #7A9E7E;
+  --background: #FFFFFF;
+  --text-primary: #2E2E2E;
+  --text-secondary: #6B7280;
+  --whatsapp: #25D366;
+  --header-footer: #9D734E;
+}
+
+@theme {
+  --color-primary: #9D734E;
+  --color-secondary: #F7F3EE;
+  --color-accent: #7A9E7E;
+  --color-background-main: #FFFFFF;
+  --color-text-primary: #2E2E2E;
+  --color-text-secondary: #6B7280;
+  --color-whatsapp: #25D366;
+  --color-header-footer: #9D734E;
+
+  --font-poppins: var(--font-poppins), sans-serif;
+  --font-inter: var(--font-inter), sans-serif;
+  --font-heading: var(--font-poppins), sans-serif;
+  --font-body: var(--font-inter), sans-serif;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--text-primary);
+  font-family: var(--font-inter), sans-serif;
+}
