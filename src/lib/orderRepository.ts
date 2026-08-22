@@ -31,7 +31,7 @@ export const orderRepository = {
     const orderIds = orders.map((o) => o.id);
     const { data: items, error: itemsError } = await supabase
       .from("order_items")
-      .select("*")
+      .select("id, order_id, product_id, product_name, product_sku, quantity, unit_price, subtotal, created_at, updated_at")
       .in("order_id", orderIds);
 
     if (itemsError) {
@@ -93,17 +93,18 @@ export const orderRepository = {
   async getById(id: string): Promise<OrderWithDetails | null> {
     const { data, error } = await supabase
       .from("orders")
-      .select("*, customers(full_name, email, phone), order_items(*)")
+      .select("id, order_number, status, payment_status, payment_method, subtotal, discount_amount, shipping_cost, total, shipping_name, shipping_phone, shipping_address, shipping_city, shipping_province, shipping_postal_code, shipping_courier, tracking_number, created_at, updated_at, customers(full_name, email, phone), order_items(id, product_id, product_name, product_sku, quantity, unit_price, subtotal)")
       .eq("id", id)
       .maybeSingle();
 
     if (error || !data) return null;
+    const _data = data as any;
     return {
-      ...data,
-      customer_name: data.customers?.full_name || "Pelanggan Umum",
-      customer_email: data.customers?.email || "—",
-      customer_phone: data.customers?.phone || "—",
-      items: data.order_items || [],
+      ..._data,
+      customer_name: _data.customers?.full_name || "Pelanggan Umum",
+      customer_email: _data.customers?.email || "—",
+      customer_phone: _data.customers?.phone || "—",
+      items: _data.order_items || [],
     };
   },
 
@@ -168,7 +169,7 @@ export const orderRepository = {
     const orderIds = orders.map((o) => o.id);
     const { data: items, error: itemsError } = await supabase
       .from("order_items")
-      .select("*")
+      .select("id, order_id, product_id, product_name, product_sku, quantity, unit_price, subtotal, created_at, updated_at")
       .in("order_id", orderIds);
 
     if (itemsError) {
