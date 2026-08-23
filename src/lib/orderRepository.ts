@@ -155,7 +155,7 @@ export const orderRepository = {
   async getRecentOrders(limitCount: number = 5): Promise<OrderWithDetails[]> {
     const { data: orders, error: ordersError } = await supabase
       .from("orders")
-      .select("*, customers(full_name, email, phone)")
+      .select("id, order_number, total, status, created_at, customers(full_name)")
       .order("created_at", { ascending: false })
       .limit(limitCount);
 
@@ -166,29 +166,12 @@ export const orderRepository = {
 
     if (!orders || orders.length === 0) return [];
 
-    const orderIds = orders.map((o) => o.id);
-    const { data: items, error: itemsError } = await supabase
-      .from("order_items")
-      .select("id, order_id, product_id, product_name, product_sku, quantity, unit_price, subtotal, created_at, updated_at")
-      .in("order_id", orderIds);
-
-    if (itemsError) {
-      console.error("[orderRepository.getRecentOrders items]", itemsError.message);
-    }
-
-    const itemsByOrder = new Map<string, DbOrderItem[]>();
-    (items || []).forEach((item: DbOrderItem) => {
-      const list = itemsByOrder.get(item.order_id) || [];
-      list.push(item);
-      itemsByOrder.set(item.order_id, list);
-    });
-
-    return orders.map((ord: DbOrder & { customers: { full_name: string; email: string; phone: string } | null }) => ({
+    return orders.map((ord: any) => ({
       ...ord,
       customer_name: ord.customers?.full_name || "Pelanggan Umum",
-      customer_email: ord.customers?.email || "—",
-      customer_phone: ord.customers?.phone || "—",
-      items: itemsByOrder.get(ord.id) || [],
+      customer_email: "—",
+      customer_phone: "—",
+      items: [],
     }));
   },
 

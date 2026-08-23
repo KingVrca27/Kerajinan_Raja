@@ -63,7 +63,7 @@ export const customerRepository = {
   async getCustomerOrders(customerId: string): Promise<DbOrder[]> {
     const { data, error } = await supabase
       .from("orders")
-      .select("*")
+      .select("id, order_number, created_at, total, status")
       .eq("customer_id", customerId)
       .order("created_at", { ascending: false });
 
@@ -71,7 +71,7 @@ export const customerRepository = {
       console.error("[customerRepository.getCustomerOrders]", error.message);
       return [];
     }
-    return data || [];
+    return (data || []) as DbOrder[];
   },
 
   /** Toggle status aktif pelanggan (blokir / aktifkan) */
