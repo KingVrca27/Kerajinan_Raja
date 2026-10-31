@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { HelpCircle } from "lucide-react";
-import { FAQ_CONTENT } from "@/src/constants/faq";
+import { FAQ_CONTENT, FAQItemData } from "@/src/constants/faq";
+import { faqRepository } from "@/src/lib/cmsRepository";
 import FAQAccordion from "./FAQAccordion";
 
 export interface FAQSectionProps {
@@ -18,7 +19,27 @@ export interface FAQSectionProps {
 export const FAQSection: React.FC<FAQSectionProps> = ({
   className = "",
 }) => {
-  const { badge, title, description, items } = FAQ_CONTENT;
+  const { badge, title, description } = FAQ_CONTENT;
+  const [items, setItems] = useState<FAQItemData[]>(FAQ_CONTENT.items);
+
+  useEffect(() => {
+    async function loadFaqs() {
+      try {
+        const activeFaqs = await faqRepository.getActive();
+        if (activeFaqs && activeFaqs.length > 0) {
+          const formattedItems = activeFaqs.map((faq) => ({
+            id: faq.id,
+            question: faq.question,
+            answer: faq.answer,
+          }));
+          setItems(formattedItems);
+        }
+      } catch (error) {
+        console.error("Failed to load FAQs:", error);
+      }
+    }
+    loadFaqs();
+  }, []);
 
   return (
     <section

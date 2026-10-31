@@ -8,35 +8,43 @@ import AboutSection from "@/src/components/home/AboutSection";
 import { WhyChooseUsSection } from "@/src/components/why-choose-us";
 import { TestimonialSection } from "@/src/components/testimonials";
 import { FAQSection } from "@/src/components/faq";
+import { heroBannerRepository, aboutRepository } from "@/src/lib/cmsRepository";
 
 export const metadata: Metadata = {
-  title: "Kerajinan Raja | Kerajinan Tangan Asli Lombok",
+  title: "Putra Art Shop | Kerajinan Tangan Asli Lombok",
   description:
-    "Kerajinan Raja menyediakan berbagai kerajinan tangan khas Lombok, Nusa Tenggara Barat. Produk handmade berkualitas dari pengrajin lokal dengan pemesanan mudah melalui WhatsApp.",
+    "Putra Art Shop menyediakan berbagai kerajinan tangan khas Lombok, Nusa Tenggara Barat. Produk handmade berkualitas dari pengrajin lokal dengan layanan pelanggan terbaik.",
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: "Kerajinan Raja | Kerajinan Tangan Asli Lombok",
+    title: "Putra Art Shop | Kerajinan Tangan Asli Lombok",
     description:
-      "Kerajinan Raja menyediakan berbagai kerajinan tangan khas Lombok, Nusa Tenggara Barat. Produk handmade berkualitas dari pengrajin lokal dengan pemesanan mudah melalui WhatsApp.",
-    url: "https://kerajinanraja.com",
+      "Putra Art Shop menyediakan berbagai kerajinan tangan khas Lombok, Nusa Tenggara Barat. Produk handmade berkualitas dari pengrajin lokal dengan layanan pelanggan terbaik.",
+    url: "/",
     images: ["/images/og-image.jpg"],
   },
 };
 
-export default function Home() {
+
+
+export default async function Home() {
+  const activeBanners = await heroBannerRepository.getActiveHomepageBanners();
+
+  const aboutHeroSection = await aboutRepository.getBySection("hero");
+
   return (
     <>
-      <Hero />
+      <Hero banners={activeBanners} />
       <CategorySection />
       <NewProducts />
       <BestSellerProducts />
       <FeaturedProducts />
-      <AboutSection />
+      <AboutSection aboutData={aboutHeroSection} />
       <WhyChooseUsSection />
       <TestimonialSection />
       <FAQSection />
     </>
   );
 }
+

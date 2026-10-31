@@ -8,6 +8,7 @@ import { Product } from "@/src/types/product";
 import { formatRupiah } from "@/src/lib/currency";
 import { useCart } from "@/src/hooks/useCart";
 import { useWishlist } from "@/src/hooks/useWishlist";
+import { useRouter } from "next/navigation";
 
 export interface ProductCardProps {
   product: Product;
@@ -28,6 +29,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const { addItem } = useCart();
   const { toggleItem, isInWishlist } = useWishlist();
+  const router = useRouter();
 
   const activeWishlisted =
     isWishlisted !== undefined ? isWishlisted : isInWishlist(product.id);
@@ -89,6 +91,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             className="object-cover object-center transition-transform duration-500 ease-out group-hover:scale-110"
+            unoptimized
           />
         </div>
       </div>
@@ -132,7 +135,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             type="button"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={() => onViewDetail?.(product)}
+            onClick={() => {
+              if (onViewDetail) {
+                onViewDetail(product);
+              } else {
+                router.push(`/produk/${product.slug}`);
+              }
+            }}
             className="flex items-center justify-center gap-1.5 rounded-xl border border-primary/20 bg-secondary/50 px-2.5 py-2 font-body text-xs font-semibold text-primary transition-colors hover:bg-primary/10 hover:border-primary/40 focus:outline-none cursor-pointer"
           >
             <Eye className="h-3.5 w-3.5 shrink-0" />

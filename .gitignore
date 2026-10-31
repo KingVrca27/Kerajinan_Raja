@@ -39,3 +39,51 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# ============================================================
+# SECURITY — Pre-Push Cleanup (added 2026-10-31)
+# ============================================================
+
+# Script diagnostik lokal yang mengandung hardcoded secrets
+gen_cookie.mjs
+audit_rls.mjs
+audit_rls2.mjs
+check_rls.ps1
+check_policies.mjs
+list_users.mjs
+query_db.mjs
+test_users.mjs
+test_mutations.mjs
+test_mutations2.mjs
+test_mutations3.mjs
+security_test.mjs
+security_test_customer.mjs
+security_test_verbose.mjs
+audit_promotions.mjs
+apply_promotions_rls.mjs
+apply_fix.mjs
+run_e2e.mjs
+dump_data.mjs
+setup_banks.mjs
+
+# Build output log
+build_out.txt
+
+# Supabase temporary CLI files (tidak untuk di-commit)
+supabase/.temp/
+
+# SQL backup files
+*.sql.bak
+
+# Gemini agent workspace
+.gemini/
+
+# Scratch / temporary workspace
+scratch/
+
+# Data export dump (bisa sangat besar)
+data/
+
+# Phase/step report sementara (opsional — hapus baris ini jika ingin di-commit)
+# PHASE_*.md
+# STEP_*.md

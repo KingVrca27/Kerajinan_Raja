@@ -59,6 +59,7 @@ interface RawAdminProductRow {
   display_order: number;
   meta_title: string | null;
   meta_description: string | null;
+  allowed_payment_methods: string[];
   created_at: string;
   updated_at: string;
   categories: {
@@ -109,6 +110,9 @@ function mapRawToAdminProduct(row: RawAdminProductRow): AdminProduct {
     display_order: row.display_order,
     meta_title: row.meta_title,
     meta_description: row.meta_description,
+    allowed_payment_methods: Array.isArray(row.allowed_payment_methods)
+      ? row.allowed_payment_methods
+      : ["COD", "TRANSFER_BANK"],
     primary_image: primaryImage,
     created_at: row.created_at,
     updated_at: row.updated_at,
@@ -150,6 +154,11 @@ function mapFormToDbPayload(form: ProductFormData): Record<string, unknown> {
     display_order: Number(form.display_order) || 0,
     meta_title: form.meta_title.trim() || null,
     meta_description: form.meta_description.trim() || null,
+    allowed_payment_methods: form.allowed_payment_methods.filter(
+      (m) => ["COD", "TRANSFER_BANK"].includes(m)
+    ).length > 0
+      ? form.allowed_payment_methods.filter((m) => ["COD", "TRANSFER_BANK"].includes(m))
+      : ["COD", "TRANSFER_BANK"], // fallback safety: never store empty
     updated_at: new Date().toISOString(),
   };
 }
@@ -182,6 +191,7 @@ export const productAdminRepository = {
           weight_gram, length_cm, width_cm, height_cm,
           status, is_featured, is_active, display_order,
           meta_title, meta_description,
+          allowed_payment_methods,
           created_at, updated_at,
           categories (id, name, slug),
           product_images (id, image_url, is_primary, sort_order)

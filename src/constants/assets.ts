@@ -1,5 +1,5 @@
 /**
- * Konfigurasi Lokasi Aset Gambar dan Logo Website Kerajinan Raja.
+ * Konfigurasi Lokasi Aset Gambar dan Logo Website Putra Art Shop.
  * 
  * Pengguna dapat dengan mudah mengganti file gambar di folder /public/
  * tanpa perlu mengubah kode komponen React.
@@ -9,17 +9,17 @@ export const ASSETS = {
   LOGO: {
     SVG: "/logo/logo.svg",
     PNG: "/logo/logo.png",
-    ALT: "Logo Kerajinan Raja",
+    ALT: "Logo Putra Art Shop",
   },
   // Gambar Hero Section
   HERO: {
     SRC: "/images/hero.svg",
-    ALT: "Kerajinan Tangan Berkualitas Kerajinan Raja",
+    ALT: "Kerajinan Tangan Berkualitas Putra Art Shop",
   },
   // Banner Placeholder
   BANNER: {
     PLACEHOLDER: "/images/banner-placeholder.jpg",
-    ALT: "Banner Promosi Kerajinan Raja",
+    ALT: "Banner Promosi Putra Art Shop",
   },
   // Folder Produk
   PRODUCTS_DIR: "/products/",

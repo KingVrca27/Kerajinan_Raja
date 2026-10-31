@@ -2,19 +2,21 @@ import React from "react";
 import { Product } from "@/src/types/product";
 import SITE_CONFIG from "@/src/constants/site";
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
+
 export interface OrganizationJsonLdProps {}
 
 /**
  * Komponen `OrganizationJsonLd` merender skema JSON-LD Structured Data
- * untuk profil bisnis dan identitas organisasi Kerajinan Raja.
+ * untuk profil bisnis dan identitas organisasi Putra Art Shop.
  */
 export const OrganizationJsonLd: React.FC<OrganizationJsonLdProps> = () => {
   const organizationSchema = {
     "@context": "https://schema.org",
     "@type": "Organization",
     name: SITE_CONFIG.name,
-    url: "https://kerajinanraja.com",
-    logo: "https://kerajinanraja.com/images/logo.png",
+    url: siteUrl,
+    logo: siteUrl ? `${siteUrl}/images/logo.png` : "/images/logo.png",
     description: SITE_CONFIG.description,
     address: {
       "@type": "PostalAddress",
@@ -52,12 +54,14 @@ export const WebSiteJsonLd: React.FC<WebSiteJsonLdProps> = () => {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: SITE_CONFIG.name,
-    url: "https://kerajinanraja.com",
-    potentialAction: {
-      "@type": "SearchAction",
-      target: "https://kerajinanraja.com/produk?search={search_term_string}",
-      "query-input": "required name=search_term_string",
-    },
+    url: siteUrl,
+    potentialAction: siteUrl
+      ? {
+          "@type": "SearchAction",
+          target: `${siteUrl}/produk?search={search_term_string}`,
+          "query-input": "required name=search_term_string",
+        }
+      : undefined,
   };
 
   return (
@@ -77,12 +81,14 @@ export interface ProductJsonLdProps {
 
 /**
  * Komponen `ProductJsonLd` merender skema JSON-LD Structured Data
- * untuk halaman detail produk e-commerce Kerajinan Raja.
+ * untuk halaman detail produk e-commerce Putra Art Shop.
  */
 export const ProductJsonLd: React.FC<ProductJsonLdProps> = ({ product }) => {
   const imageUrl = product.image.startsWith("http")
     ? product.image
-    : `https://kerajinanraja.com${product.image.startsWith("/") ? "" : "/"}${product.image}`;
+    : siteUrl
+    ? `${siteUrl}${product.image.startsWith("/") ? "" : "/"}${product.image}`
+    : product.image;
 
   const productSchema = {
     "@context": "https://schema.org",
@@ -97,7 +103,7 @@ export const ProductJsonLd: React.FC<ProductJsonLdProps> = ({ product }) => {
     },
     offers: {
       "@type": "Offer",
-      url: `https://kerajinanraja.com/produk/${product.slug}`,
+      url: siteUrl ? `${siteUrl}/produk/${product.slug}` : `/produk/${product.slug}`,
       priceCurrency: "IDR",
       price: product.price,
       itemCondition: "https://schema.org/NewCondition",

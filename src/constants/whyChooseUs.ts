@@ -37,13 +37,13 @@ export interface WhyChooseUsContent {
 }
 
 /**
- * Data Terpusat Seksi "Mengapa Memilih Kerajinan Raja".
+ * Data Terpusat Seksi "Mengapa Memilih Putra Art Shop".
  * Seluruh teks, ikon, dan poin keunggulan dikelola di sini sehingga dapat diubah
  * atau ditambah tanpa menyentuh logika komponen React.
  */
 export const WHY_CHOOSE_US_CONTENT: WhyChooseUsContent = {
   badge: "Keunggulan Kami",
-  title: "Mengapa Memilih Kerajinan Raja?",
+  title: "Mengapa Memilih Putra Art Shop?",
   description:
     "Kami berkomitmen memberikan produk kerajinan tangan khas Lombok terbaik dengan kualitas otentik, pelayanan prima, dan dukungan nyata bagi pengrajin lokal.",
   items: [
@@ -83,12 +83,11 @@ export const WHY_CHOOSE_US_CONTENT: WhyChooseUsContent = {
         "Layanan pengiriman aman dan terpercaya dengan kemasan khusus ke seluruh wilayah Indonesia.",
     },
     {
-      id: "checkout-mudah-whatsapp",
+      id: "customer-service-responsif",
       icon: MessageCircle,
-      title: "Checkout Mudah via WhatsApp",
+      title: "Layanan Customer Service Responsif",
       description:
-        "Proses pemesanan praktis dan ramah langsung terhubung dengan tim customer service via WhatsApp.",
-    },
+        "Tim customer service kami siap melayani pertanyaan dan bantuan seputar produk melalui fitur chat di website kami.",    },
   ],
 };
 

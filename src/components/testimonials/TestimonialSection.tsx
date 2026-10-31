@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { MessageSquareQuote } from "lucide-react";
-import { TESTIMONIAL_CONTENT } from "@/src/constants/testimonials";
+import { TESTIMONIAL_CONTENT, TestimonialItem } from "@/src/constants/testimonials";
+import { testimonialRepository } from "@/src/lib/testimonialRepository";
 import TestimonialGrid from "./TestimonialGrid";
 
 export interface TestimonialSectionProps {
@@ -18,7 +19,22 @@ export interface TestimonialSectionProps {
 export const TestimonialSection: React.FC<TestimonialSectionProps> = ({
   className = "",
 }) => {
-  const { badge, title, description, items } = TESTIMONIAL_CONTENT;
+  const { badge, title, description } = TESTIMONIAL_CONTENT;
+  const [items, setItems] = useState<TestimonialItem[]>(TESTIMONIAL_CONTENT.items);
+
+  useEffect(() => {
+    async function loadTestimonials() {
+      try {
+        const data = await testimonialRepository.getTestimonials();
+        if (data && data.length > 0) {
+          setItems(data);
+        }
+      } catch (error) {
+        console.error("Failed to load testimonials:", error);
+      }
+    }
+    loadTestimonials();
+  }, []);
 
   return (
     <section

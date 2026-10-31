@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Sparkles } from "lucide-react";
 import { SITE_CONFIG } from "@/src/constants/site";
+import { siteSettingsRepository, SETTINGS_KEYS } from "@/src/lib/cmsRepository";
 
 export interface FooterBrandProps {
   /** Kelas CSS tambahan */
@@ -12,11 +13,24 @@ export interface FooterBrandProps {
 }
 
 /**
- * Komponen `FooterBrand` merender identitas brand Kerajinan Raja pada footer:
+ * Komponen `FooterBrand` merender identitas brand Putra Art Shop pada footer:
  * Logo dari `/public/images/logo.png`, Nama Brand, Tagline, dan Deskripsi.
  */
 export const FooterBrand: React.FC<FooterBrandProps> = ({ className = "" }) => {
   const [imgError, setImgError] = useState(false);
+  const [logoUrl, setLogoUrl] = useState<string>(SITE_CONFIG.logoSrc);
+
+  React.useEffect(() => {
+    const fetchLogo = async () => {
+      try {
+        const url = await siteSettingsRepository.getSetting(SETTINGS_KEYS.LOGO_FOOTER);
+        if (url) setLogoUrl(url);
+      } catch (e) {
+        console.error("Gagal memuat logo footer:", e);
+      }
+    };
+    fetchLogo();
+  }, []);
 
   return (
     <div className={`space-y-4 ${className}`}>
@@ -25,7 +39,7 @@ export const FooterBrand: React.FC<FooterBrandProps> = ({ className = "" }) => {
         <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-2xl border border-primary/20 bg-white p-1 shadow-xs transition-transform duration-300 group-hover:scale-105">
           {!imgError ? (
             <Image
-              src={SITE_CONFIG.logoSrc}
+              src={logoUrl}
               alt={SITE_CONFIG.name}
               fill
               sizes="48px"
@@ -34,7 +48,7 @@ export const FooterBrand: React.FC<FooterBrandProps> = ({ className = "" }) => {
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center rounded-xl bg-primary font-heading font-extrabold text-white text-lg">
-              KR
+              PA
             </div>
           )}
         </div>

@@ -23,6 +23,7 @@ export const PRODUCTS: Product[] = [
     material: "Rotan",
     dimensions: "10cm x 10cm x 28cm",
     weight: "800g",
+    weight_gram: 800,
   },
   {
     id: "prod-2",
@@ -46,6 +47,7 @@ export const PRODUCTS: Product[] = [
     material: "Rotan Alami Premium",
     dimensions: "35cm x 35cm x 40cm",
     weight: "1200g",
+    weight_gram: 1200,
   },
   {
     id: "prod-3",
@@ -69,6 +71,7 @@ export const PRODUCTS: Product[] = [
     material: "Bambu Natural Cendani",
     dimensions: "40cm x 25cm x 5cm",
     weight: "500g",
+    weight_gram: 500,
   },
   {
     id: "prod-4",
@@ -92,6 +95,7 @@ export const PRODUCTS: Product[] = [
     material: "Kayu Mahoni Perhutani",
     dimensions: "15cm x 15cm x 45cm",
     weight: "1500g",
+    weight_gram: 1500,
   },
   {
     id: "prod-5",
@@ -115,6 +119,7 @@ export const PRODUCTS: Product[] = [
     material: "Cermin Kaca & Bingkai Rotan",
     dimensions: "60cm x 60cm x 4cm",
     weight: "1800g",
+    weight_gram: 1800,
   },
   {
     id: "prod-6",
@@ -138,6 +143,7 @@ export const PRODUCTS: Product[] = [
     material: "Kayu Jati & Kain Beludru",
     dimensions: "20cm x 12cm x 8cm",
     weight: "650g",
+    weight_gram: 650,
   },
   {
     id: "prod-7",
@@ -161,6 +167,7 @@ export const PRODUCTS: Product[] = [
     material: "Bambu Anyaman & Fitting E27",
     dimensions: "30cm x 30cm x 35cm",
     weight: "750g",
+    weight_gram: 750,
   },
   {
     id: "prod-8",
@@ -184,6 +191,7 @@ export const PRODUCTS: Product[] = [
     material: "Kayu Jati Solid",
     dimensions: "50cm x 50cm x 3cm",
     weight: "2100g",
+    weight_gram: 2100,
   },
 ];
 

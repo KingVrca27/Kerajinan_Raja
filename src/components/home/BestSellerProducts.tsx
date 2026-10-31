@@ -1,24 +1,25 @@
-"use client";
+/**
+ * BestSellerProducts — Server Component
+ *
+ * Menampilkan section "Produk Terlaris" di homepage.
+ *
+ * CATATAN SEMENTARA (FASE 4.2.2):
+ *   Kolom is_best_seller belum ada di database.
+ *   Saat ini menampilkan produk aktif pertama berdasarkan display_order
+ *   sebagai placeholder hingga fitur Best Seller dari order_items
+ *   diimplementasikan pada FASE 4.x.
+ */
 
 import React from "react";
-import { getBestSellerProducts } from "@/src/lib/product";
+import productRepository from "@/src/lib/productRepository";
 import HomeProductSection from "@/src/components/home/HomeProductSection";
-import { Product } from "@/src/types/product";
 
-export interface BestSellerProductsProps {
-  onAddToCart?: (product: Product) => void;
-  onToggleWishlist?: (product: Product) => void;
-  onViewDetail?: (product: Product) => void;
-  wishlistedIds?: string[];
-}
+/** Jumlah maksimal produk yang ditampilkan di section Terlaris sementara */
+const BEST_SELLER_LIMIT = 8;
 
-export const BestSellerProducts: React.FC<BestSellerProductsProps> = ({
-  onAddToCart,
-  onToggleWishlist,
-  onViewDetail,
-  wishlistedIds,
-}) => {
-  const products = getBestSellerProducts();
+export async function BestSellerProducts() {
+  // Mengambil data produk terlaris berdasarkan penjualan nyata (orders & order_items).
+  const products = await productRepository.getBestSellerProducts(BEST_SELLER_LIMIT);
 
   return (
     <HomeProductSection
@@ -26,12 +27,8 @@ export const BestSellerProducts: React.FC<BestSellerProductsProps> = ({
       description="Produk favorit pilihan terbaik yang paling banyak diminati oleh pelanggan kami."
       products={products}
       emptyMessage="Belum ada produk terlaris saat ini."
-      onAddToCart={onAddToCart}
-      onToggleWishlist={onToggleWishlist}
-      onViewDetail={onViewDetail}
-      wishlistedIds={wishlistedIds}
     />
   );
-};
+}
 
 export default BestSellerProducts;

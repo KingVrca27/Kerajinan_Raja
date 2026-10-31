@@ -1,14 +1,14 @@
 import { ASSETS } from "./assets";
 
 /**
- * Konfigurasi Seluruh Teks dan Konten Website Kerajinan Raja.
+ * Konfigurasi Seluruh Teks dan Konten Website Putra Art Shop.
  * 
  * Pengguna dapat dengan mudah mengubah judul, deskripsi, tombol, dan highlight
  * hanya dengan memperbarui file ini tanpa menyentuh logika komponen.
  */
 export const CONTENT = {
   brand: {
-    name: "Kerajinan Raja",
+    name: "Putra Art Shop",
     tagline: "Kerajinan & Ukiran Kayu",
     logoSrc: ASSETS.LOGO.SVG,
   },

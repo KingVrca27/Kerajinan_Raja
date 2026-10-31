@@ -25,7 +25,7 @@ export const WhyChooseUsCard: React.FC<WhyChooseUsCardProps> = ({
     <motion.div
       whileHover={{ y: -6 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className={`group relative flex flex-col rounded-3xl border border-primary/10 bg-white p-6 sm:p-7 shadow-xs transition-all duration-300 hover:border-primary/30 hover:shadow-xl ${className}`}
+      className={`group relative flex h-full flex-col rounded-3xl border border-primary/10 bg-white p-6 sm:p-7 shadow-xs transition-all duration-300 hover:border-primary/30 hover:shadow-xl ${className}`}
     >
       {/* Background Accent Highlight Glow pada saat Hover */}
       <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none" />

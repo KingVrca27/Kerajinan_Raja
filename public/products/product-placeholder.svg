@@ -4,6 +4,6 @@
   <circle cx="200" cy="170" r="60" fill="#8B5E3C" opacity="0.15"/>
   <!-- Handcraft Icon -->
   <path d="M200,135 C180,135 160,165 170,200 C180,215 220,215 230,200 C240,165 220,135 200,135 Z" fill="#8B5E3C"/>
-  <text x="200" y="260" font-family="Poppins, sans-serif" font-size="16" font-weight="700" fill="#8B5E3C" text-anchor="middle">Produk Kerajinan Raja</text>
+  <text x="200" y="260" font-family="Poppins, sans-serif" font-size="16" font-weight="700" fill="#8B5E3C" text-anchor="middle">Produk Putra Art Shop</text>
   <text x="200" y="285" font-family="Inter, sans-serif" font-size="12" fill="#6B7280" text-anchor="middle">Handmade Product Placeholder</text>
 </svg>

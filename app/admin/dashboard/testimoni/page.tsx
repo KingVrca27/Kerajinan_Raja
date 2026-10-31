@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Search, Edit2, Trash2, X, Star, AlertTriangle } from "lucide-react";
-import adminStorage from "@/src/lib/adminStorage";
+import { Plus, Search, Edit2, Trash2, X, Star, AlertTriangle, Loader2 } from "lucide-react";
+import { testimonialRepository } from "@/src/lib/testimonialRepository";
 import { TestimonialItem } from "@/src/constants/testimonials";
 
 export default function AdminTestimoniPage() {
@@ -20,24 +20,24 @@ export default function AdminTestimoniPage() {
     city: "",
     rating: 5,
     comment: "",
-    avatar: "/images/testimonials/avatar-1.jpg",
+    avatar: "",
   });
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const items = await adminStorage.getTestimonials();
+      const items = await testimonialRepository.getTestimonials();
       setTestimonials(items);
     } catch (e) {
       console.error("Gagal memuat testimoni:", e);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
   const handleOpenAddModal = () => {
     setEditingItem(null);
@@ -46,7 +46,7 @@ export default function AdminTestimoniPage() {
       city: "",
       rating: 5,
       comment: "",
-      avatar: "/images/testimonials/avatar-1.jpg",
+      avatar: "",
     });
     setIsModalOpen(true);
   };
@@ -71,18 +71,28 @@ export default function AdminTestimoniPage() {
       city: formData.city || "Indonesia",
       rating: Number(formData.rating) || 5,
       comment: formData.comment || "",
-      avatar: formData.avatar || "/images/testimonials/avatar-1.jpg",
+      avatar: formData.avatar || "",
     };
 
-    await adminStorage.saveTestimonial(newItem);
-    await loadData();
-    setIsModalOpen(false);
+    try {
+      await testimonialRepository.saveTestimonial(newItem);
+      await loadData();
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Failed to save testimonial:", error);
+      alert("Gagal menyimpan testimoni.");
+    }
   };
 
   const handleDeleteItem = async (id: string) => {
-    await adminStorage.deleteTestimonial(id);
-    await loadData();
-    setDeleteConfirmId(null);
+    try {
+      await testimonialRepository.deleteTestimonial(id);
+      await loadData();
+      setDeleteConfirmId(null);
+    } catch (error) {
+      console.error("Failed to delete testimonial:", error);
+      alert("Gagal menghapus testimoni.");
+    }
   };
 
   const filteredItems = testimonials.filter(

@@ -11,13 +11,13 @@ export const Header: React.FC<HeaderProps> = () => {
         <div className="flex items-center gap-3">
           <Image
             src="/images/logo.png"
-            alt="Logo Kerajinan Raja"
+            alt="Logo Putra Art Shop"
             width={36}
             height={36}
             className="h-9 w-9 object-contain"
           />
           <span className="font-heading text-xl font-bold tracking-tight text-primary md:text-2xl">
-            Kerajinan Raja
+            Putra Art Shop
           </span>
         </div>
 

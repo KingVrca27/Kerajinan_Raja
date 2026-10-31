@@ -1,9 +1,12 @@
 /**
  * @file src/lib/orderRepository.ts
  * Repository pattern untuk operasi Pesanan (Orders) di Supabase.
+ *
+ * Menggunakan createClient() (cookie-aware browser client) agar
+ * session admin terbaca oleh RLS di browser, bukan singleton tanpa auth.
  */
 
-import { supabase } from "@/src/lib/supabase";
+import { createClient } from "@/src/lib/supabaseBrowser";
 import { activityLogRepository } from "@/src/lib/activityLogRepository";
 import type { DbOrder, DbOrderItem, OrderWithDetails, OrderStatus } from "@/src/types/ops";
 
@@ -16,9 +19,10 @@ export interface OperationResult {
 export const orderRepository = {
   /** Ambil semua pesanan dengan relasi customer & items */
   async getAll(): Promise<OrderWithDetails[]> {
+    const supabase = createClient();
     const { data: orders, error: ordersError } = await supabase
       .from("orders")
-      .select("*, customers(full_name, email, phone)")
+      .select("*, customers(full_name, email, phone), bank_accounts(bank_name, account_number, account_name)")
       .order("created_at", { ascending: false });
 
     if (ordersError) {
@@ -45,17 +49,19 @@ export const orderRepository = {
       itemsByOrder.set(item.order_id, list);
     });
 
-    return orders.map((ord: DbOrder & { customers: { full_name: string; email: string; phone: string } | null }) => ({
+    return orders.map((ord: DbOrder & { customers: { full_name: string; email: string; phone: string } | null; bank_accounts: { bank_name: string; account_number: string; account_name: string } | null }) => ({
       ...ord,
       customer_name: ord.customers?.full_name || "Pelanggan Umum",
       customer_email: ord.customers?.email || "—",
       customer_phone: ord.customers?.phone || "—",
+      bank_accounts: ord.bank_accounts || null,
       items: itemsByOrder.get(ord.id) || [],
     }));
   },
 
   /** Update status pesanan */
   async updateStatus(id: string, status: OrderStatus, trackingNumber?: string): Promise<OperationResult> {
+    const supabase = createClient();
     // Ambil order saat ini untuk log aktivitas
     const { data: existingOrder } = await supabase.from("orders").select("status, order_number").eq("id", id).maybeSingle();
 
@@ -91,25 +97,29 @@ export const orderRepository = {
 
   /** Ambil detail satu pesanan */
   async getById(id: string): Promise<OrderWithDetails | null> {
+    const supabase = createClient();
     const { data, error } = await supabase
       .from("orders")
-      .select("id, order_number, status, payment_status, payment_method, subtotal, discount_amount, shipping_cost, total, shipping_name, shipping_phone, shipping_address, shipping_city, shipping_province, shipping_postal_code, shipping_courier, tracking_number, created_at, updated_at, customers(full_name, email, phone), order_items(id, product_id, product_name, product_sku, quantity, unit_price, subtotal)")
+      .select("id, order_number, status, payment_status, payment_method, bank_account_id, payment_proof_path, payment_verified_at, payment_verified_by, payment_rejection_reason, subtotal, discount_amount, shipping_cost, total, shipping_name, shipping_phone, shipping_address, shipping_city, shipping_province, shipping_postal_code, shipping_courier, tracking_number, created_at, updated_at, customers(full_name, email, phone), order_items(id, product_id, product_name, product_sku, quantity, unit_price, subtotal), bank_accounts(bank_name, account_number, account_name)")
       .eq("id", id)
       .maybeSingle();
 
     if (error || !data) return null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const _data = data as any;
     return {
       ..._data,
       customer_name: _data.customers?.full_name || "Pelanggan Umum",
       customer_email: _data.customers?.email || "—",
       customer_phone: _data.customers?.phone || "—",
+      bank_accounts: _data.bank_accounts || null,
       items: _data.order_items || [],
-    };
+    } as OrderWithDetails;
   },
 
   /** Hapus pesanan (Cascading ke order_items) */
   async deleteOrder(id: string): Promise<OperationResult> {
+    const supabase = createClient();
     // Ambil order number untuk log
     const { data: existingOrder } = await supabase.from("orders").select("order_number").eq("id", id).maybeSingle();
 
@@ -135,6 +145,7 @@ export const orderRepository = {
    * Tidak termasuk: delivered, cancelled, refunded.
    */
   async getActiveCount(): Promise<number> {
+    const supabase = createClient();
     const ACTIVE_STATUSES = ["pending", "confirmed", "processing", "shipped"];
     const { count, error } = await supabase
       .from("orders")
@@ -153,6 +164,7 @@ export const orderRepository = {
    * Menghindari memuat seluruh pesanan ke memori.
    */
   async getRecentOrders(limitCount: number = 5): Promise<OrderWithDetails[]> {
+    const supabase = createClient();
     const { data: orders, error: ordersError } = await supabase
       .from("orders")
       .select("id, order_number, total, status, created_at, customers(full_name)")
@@ -166,13 +178,17 @@ export const orderRepository = {
 
     if (!orders || orders.length === 0) return [];
 
-    return orders.map((ord: any) => ({
-      ...ord,
-      customer_name: ord.customers?.full_name || "Pelanggan Umum",
-      customer_email: "—",
-      customer_phone: "—",
-      items: [],
-    }));
+    return orders.map((ord) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const o = ord as any;
+      return {
+        ...o,
+        customer_name: o.customers?.full_name || "Pelanggan Umum",
+        customer_email: "—",
+        customer_phone: "—",
+        items: [],
+      };
+    });
   },
 
   /**
@@ -180,6 +196,7 @@ export const orderRepository = {
    * dan jumlah pesanan di Dashboard, tanpa memuat seluruh relasi dan kolom.
    */
   async getDashboardSalesData(): Promise<{ created_at: string; total: number; status: string; items: { quantity: number }[] }[]> {
+    const supabase = createClient();
     const { data, error } = await supabase
       .from("orders")
       .select("created_at, total, status, items:order_items(quantity)");
@@ -189,7 +206,6 @@ export const orderRepository = {
       return [];
     }
     
-    // Konversi tipe pengembalian supabase (any) ke tipe yang diharapkan
-    return (data || []) as any[];
+    return (data || []) as { created_at: string; total: number; status: string; items: { quantity: number }[] }[];
   },
 };

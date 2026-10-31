@@ -15,7 +15,7 @@ export interface FooterProps {
 }
 
 /**
- * Komponen `Footer` utama website Kerajinan Raja.
+ * Komponen `Footer` utama website Putra Art Shop.
  * Merender 4 kolom utama pada Desktop (Brand + Sosmed, Navigasi Cepat, Kontak Resmi, Lokasi Maps)
  * dan 1 baris copyright paling bawah (`FooterBottom`).
  */

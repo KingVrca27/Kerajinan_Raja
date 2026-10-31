@@ -13,22 +13,22 @@ export const WishlistClientView: React.FC = () => {
   const totalItems = getTotalItems();
 
   return (
-    <div className="min-h-screen bg-background py-8 sm:py-12">
+    <div className="min-h-screen bg-[#FDFBF7] py-8 sm:py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-8">
         {/* 1. Breadcrumb Navigation */}
         <nav
           aria-label="Breadcrumb"
-          className="flex items-center gap-2 font-body text-xs sm:text-sm text-text-secondary"
+          className="flex items-center gap-2 font-body text-xs sm:text-sm text-gray-500"
         >
           <Link
             href="/"
-            className="flex items-center gap-1.5 hover:text-primary transition-colors"
+            className="flex items-center gap-1.5 hover:text-[#9D734E] transition-colors"
           >
             <Home className="h-3.5 w-3.5" />
             <span>Beranda</span>
           </Link>
-          <ChevronRight className="h-3.5 w-3.5 text-text-secondary/50" />
-          <span className="font-semibold text-text-primary">Produk Favorit</span>
+          <ChevronRight className="h-3.5 w-3.5 text-gray-400" />
+          <span className="font-semibold text-gray-900">Produk Favorit</span>
         </nav>
 
         {/* 2. Header Halaman Wishlist */}
@@ -36,24 +36,24 @@ export const WishlistClientView: React.FC = () => {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
-          className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-primary/10 pb-6"
+          className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-amber-900/10 pb-6"
         >
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/10 text-accent">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100/80 text-[#9D734E]">
                 <Heart className="h-4 w-4 fill-current" />
               </div>
-              <span className="font-body text-xs font-bold uppercase tracking-wider text-accent">
+              <span className="font-body text-xs font-bold uppercase tracking-wider text-[#9D734E]">
                 Koleksi Anda
               </span>
             </div>
-            <h1 className="font-heading text-3xl font-extrabold tracking-tight text-text-primary sm:text-4xl lg:text-5xl">
+            <h1 className="font-heading text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
               Produk Favorit
             </h1>
           </div>
 
-          <span className="font-body text-sm text-text-secondary font-medium">
-            Tersimpan: <strong className="text-text-primary font-bold">{totalItems}</strong> produk
+          <span className="font-body text-sm text-gray-600 font-medium">
+            Tersimpan: <strong className="text-gray-900 font-bold">{totalItems}</strong> produk
           </span>
         </motion.div>
 

@@ -10,7 +10,7 @@ export interface FooterBottomProps {
 
 /**
  * Komponen `FooterBottom` merender bagian hak cipta paling bawah:
- * Copyright © 2026 Kerajinan Raja dan subteks dukungan pengrajin lokal Lombok.
+ * Copyright © 2026 Putra Art Shop dan subteks dukungan pengrajin lokal Lombok.
  */
 export const FooterBottom: React.FC<FooterBottomProps> = ({
   className = "",

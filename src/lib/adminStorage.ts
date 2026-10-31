@@ -50,14 +50,28 @@ export const adminStorage = {
   // ==========================================
 
   /**
-   * Mengambil seluruh daftar produk dari localStorage atau fallback ke data awal.
+   * Mengambil seluruh daftar produk dari API server disk atau fallback ke localStorage/default.
    */
   async getProducts(): Promise<Product[]> {
+    try {
+      const res = await fetch("/api/products", { cache: "no-store" });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          if (typeof window !== "undefined") {
+            localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(data));
+          }
+          return data;
+        }
+      }
+    } catch (e) {
+      console.warn("API Server /api/products tidak merespons, menggunakan fallback storage:", e);
+    }
+
     if (typeof window === "undefined") return PRODUCTS;
     try {
       const data = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
       if (data) return JSON.parse(data);
-      // Simpan data awal jika belum ada
       localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(PRODUCTS));
       return PRODUCTS;
     } catch (error) {
@@ -67,9 +81,26 @@ export const adminStorage = {
   },
 
   /**
-   * Menyimpan atau memperbarui satu objek produk.
+   * Menyimpan atau memperbarui satu objek produk ke API server disk dan localStorage.
    */
   async saveProduct(product: Product): Promise<Product[]> {
+    try {
+      const res = await fetch("/api/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(product),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        if (typeof window !== "undefined") {
+          localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(updated));
+        }
+        return updated;
+      }
+    } catch (e) {
+      console.error("Gagal menyimpan produk ke API server:", e);
+    }
+
     const current = await this.getProducts();
     const index = current.findIndex((p) => p.id === product.id);
 
@@ -88,9 +119,24 @@ export const adminStorage = {
   },
 
   /**
-   * Menghapus produk berdasarkan ID unik.
+   * Menghapus produk berdasarkan ID unik di API server disk dan localStorage.
    */
   async deleteProduct(id: string): Promise<Product[]> {
+    try {
+      const res = await fetch(`/api/products?id=${encodeURIComponent(id)}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        if (typeof window !== "undefined") {
+          localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(updated));
+        }
+        return updated;
+      }
+    } catch (e) {
+      console.error("Gagal menghapus produk dari API server:", e);
+    }
+
     const current = await this.getProducts();
     const updated = current.filter((p) => p.id !== id);
     if (typeof window !== "undefined") {
@@ -104,9 +150,24 @@ export const adminStorage = {
   // ==========================================
 
   /**
-   * Mengambil seluruh daftar kategori.
+   * Mengambil seluruh daftar kategori dari API server disk atau fallback.
    */
   async getCategories(): Promise<Category[]> {
+    try {
+      const res = await fetch("/api/categories", { cache: "no-store" });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          if (typeof window !== "undefined") {
+            localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(data));
+          }
+          return data;
+        }
+      }
+    } catch (e) {
+      console.warn("API Server /api/categories tidak merespons, menggunakan fallback storage:", e);
+    }
+
     if (typeof window === "undefined") return CATEGORIES;
     try {
       const data = localStorage.getItem(STORAGE_KEYS.CATEGORIES);
@@ -120,9 +181,26 @@ export const adminStorage = {
   },
 
   /**
-   * Menyimpan atau memperbarui objek kategori.
+   * Menyimpan atau memperbarui objek kategori ke API server disk.
    */
   async saveCategory(category: Category): Promise<Category[]> {
+    try {
+      const res = await fetch("/api/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(category),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        if (typeof window !== "undefined") {
+          localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(updated));
+        }
+        return updated;
+      }
+    } catch (e) {
+      console.error("Gagal menyimpan kategori ke API server:", e);
+    }
+
     const current = await this.getCategories();
     const index = current.findIndex((c) => c.id === category.id);
 
@@ -141,9 +219,24 @@ export const adminStorage = {
   },
 
   /**
-   * Menghapus kategori berdasarkan ID unik.
+   * Menghapus kategori berdasarkan ID unik di API server disk.
    */
   async deleteCategory(id: string): Promise<Category[]> {
+    try {
+      const res = await fetch(`/api/categories?id=${encodeURIComponent(id)}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        if (typeof window !== "undefined") {
+          localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(updated));
+        }
+        return updated;
+      }
+    } catch (e) {
+      console.error("Gagal menghapus kategori dari API server:", e);
+    }
+
     const current = await this.getCategories();
     const updated = current.filter((c) => c.id !== id);
     if (typeof window !== "undefined") {

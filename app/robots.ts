@@ -5,7 +5,7 @@ import { MetadataRoute } from "next";
  * Mengatur akses web crawler serta merujuk ke sitemap.xml.
  */
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://kerajinanraja.com";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
   return {
     rules: {
@@ -16,3 +16,4 @@ export default function robots(): MetadataRoute.Robots {
     sitemap: `${baseUrl}/sitemap.xml`,
   };
 }
+

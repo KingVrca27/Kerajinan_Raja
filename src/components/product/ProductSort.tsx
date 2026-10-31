@@ -59,6 +59,7 @@ export const ProductSort: React.FC<ProductSortProps> = ({
       <select
         value={selectedSort}
         onChange={handleChange}
+        suppressHydrationWarning
         className="w-full appearance-none rounded-xl border border-primary/20 bg-background/90 py-2.5 pl-10 pr-9 font-body text-sm text-text-primary shadow-sm transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
       >
         {SORT_OPTIONS.map((opt) => (

@@ -12,7 +12,7 @@ export interface WhyChooseUsSectionProps {
 }
 
 /**
- * Komponen `WhyChooseUsSection` merender seksi utama "Mengapa Memilih Kerajinan Raja".
+ * Komponen `WhyChooseUsSection` merender seksi utama "Mengapa Memilih Putra Art Shop".
  * Menyajikan badge kecil, judul utama, deskripsi singkat, dan grid 6 kartu keunggulan.
  */
 export const WhyChooseUsSection: React.FC<WhyChooseUsSectionProps> = ({

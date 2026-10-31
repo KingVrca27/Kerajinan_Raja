@@ -1,5 +1,5 @@
 /**
- * Interface definisi data Produk Kerajinan Raja.
+ * Interface definisi data Produk Putra Art Shop.
  */
 export interface Product {
   id: string;
@@ -18,5 +18,7 @@ export interface Product {
   isNew: boolean;
   dimensions?: string;
   weight?: string;
+  weight_gram: number;
   material?: string;
+  allowedPaymentMethods?: string[];
 }

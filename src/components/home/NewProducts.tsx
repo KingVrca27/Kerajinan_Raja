@@ -1,24 +1,20 @@
-"use client";
+/**
+ * NewProducts — Server Component
+ *
+ * Menampilkan section "Produk Terbaru" di homepage.
+ * Data diambil dari Supabase melalui productRepository.
+ *
+ * "Produk Baru" ditentukan secara dinamis oleh mapper berdasarkan kolom
+ * created_at — bukan flag boolean statis seperti sebelumnya.
+ * Produk yang dibuat dalam 30 hari terakhir dianggap sebagai "Baru".
+ */
 
 import React from "react";
-import { getNewProducts } from "@/src/lib/product";
+import productRepository from "@/src/lib/productRepository";
 import HomeProductSection from "@/src/components/home/HomeProductSection";
-import { Product } from "@/src/types/product";
 
-export interface NewProductsProps {
-  onAddToCart?: (product: Product) => void;
-  onToggleWishlist?: (product: Product) => void;
-  onViewDetail?: (product: Product) => void;
-  wishlistedIds?: string[];
-}
-
-export const NewProducts: React.FC<NewProductsProps> = ({
-  onAddToCart,
-  onToggleWishlist,
-  onViewDetail,
-  wishlistedIds,
-}) => {
-  const products = getNewProducts();
+export async function NewProducts() {
+  const products = await productRepository.getNewProducts();
 
   return (
     <HomeProductSection
@@ -26,12 +22,8 @@ export const NewProducts: React.FC<NewProductsProps> = ({
       description="Koleksi hasil karya pengrajin lokal terkini dengan desain segar dan inovatif."
       products={products}
       emptyMessage="Belum ada produk terbaru saat ini."
-      onAddToCart={onAddToCart}
-      onToggleWishlist={onToggleWishlist}
-      onViewDetail={onViewDetail}
-      wishlistedIds={wishlistedIds}
     />
   );
-};
+}
 
 export default NewProducts;

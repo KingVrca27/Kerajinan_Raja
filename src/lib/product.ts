@@ -14,11 +14,25 @@ export interface FilterOptions {
 }
 
 /**
- * Mengambil seluruh data daftar produk Kerajinan Raja.
+ * Mengambil seluruh data daftar produk Putra Art Shop.
+ * Mengutamakan data produk dari localStorage (admin storage) jika berjalan di browser.
  * 
  * @returns Array berisi seluruh produk.
  */
 export const getAllProducts = (): Product[] => {
+  if (typeof window !== "undefined") {
+    try {
+      const stored = localStorage.getItem("kerajinan-raja-admin-products");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      }
+    } catch (e) {
+      console.error("Gagal membaca produk dari storage:", e);
+    }
+  }
   return PRODUCTS;
 };
 
@@ -30,7 +44,8 @@ export const getAllProducts = (): Product[] => {
  */
 export const getProductById = (id: string): Product | undefined => {
   if (!id) return undefined;
-  return PRODUCTS.find((product) => product.id === id);
+  const products = getAllProducts();
+  return products.find((product) => product.id === id);
 };
 
 /**
@@ -41,21 +56,26 @@ export const getProductById = (id: string): Product | undefined => {
  */
 export const getProductBySlug = (slug: string): Product | undefined => {
   if (!slug) return undefined;
-  return PRODUCTS.find((product) => product.slug === slug);
+  const products = getAllProducts();
+  return products.find((product) => product.slug === slug);
 };
 
 /**
  * Mengambil seluruh produk berdasarkan nama kategori tertentu.
  * 
- * @param category - Slug atau nama kategori produk (contoh: "kayu", "rotan", "bambu").
+ * @param category - Slug atau nama kategori produk (contoh: "kayu", "rotan", "bambu", "souvenir").
  * @returns Array produk yang tergolong dalam kategori tersebut.
  */
 export const getProductsByCategory = (category: string): Product[] => {
+  const products = getAllProducts();
   if (!category || category === "semua" || category === "all") {
-    return PRODUCTS;
+    return products;
   }
-  return PRODUCTS.filter(
-    (product) => product.category.toLowerCase() === category.toLowerCase()
+  const cleanCat = category.toLowerCase().trim();
+  return products.filter(
+    (product) =>
+      product.category.toLowerCase() === cleanCat ||
+      product.category.toLowerCase().replace(/\s+/g, "-") === cleanCat
   );
 };
 
@@ -65,7 +85,7 @@ export const getProductsByCategory = (category: string): Product[] => {
  * @returns Array produk unggulan.
  */
 export const getFeaturedProducts = (): Product[] => {
-  return PRODUCTS.filter((product) => product.isFeatured);
+  return getAllProducts().filter((product) => product.isFeatured);
 };
 
 /**
@@ -74,7 +94,7 @@ export const getFeaturedProducts = (): Product[] => {
  * @returns Array produk terlaris.
  */
 export const getBestSellerProducts = (): Product[] => {
-  return PRODUCTS.filter((product) => product.isBestSeller);
+  return getAllProducts().filter((product) => product.isBestSeller);
 };
 
 /**
@@ -83,7 +103,7 @@ export const getBestSellerProducts = (): Product[] => {
  * @returns Array produk terbaru.
  */
 export const getNewProducts = (): Product[] => {
-  return PRODUCTS.filter((product) => product.isNew);
+  return getAllProducts().filter((product) => product.isNew);
 };
 
 /**
@@ -97,17 +117,19 @@ export const getRelatedProducts = (
   productId: string,
   limit: number = 4
 ): Product[] => {
+  const products = getAllProducts();
   const currentProduct = getProductById(productId);
-  if (!currentProduct) return PRODUCTS.slice(0, limit);
+  if (!currentProduct) return products.slice(0, limit);
 
-  const related = PRODUCTS.filter(
+  const related = products.filter(
     (product) =>
-      product.category === currentProduct.category && product.id !== productId
+      product.category.toLowerCase() === currentProduct.category.toLowerCase() &&
+      product.id !== productId
   );
 
   // Jika produk dengan kategori sama kurang dari limit, penuhi dengan produk lain
   if (related.length < limit) {
-    const fallback = PRODUCTS.filter(
+    const fallback = products.filter(
       (product) => product.id !== productId && !related.includes(product)
     );
     return [...related, ...fallback].slice(0, limit);
@@ -123,11 +145,12 @@ export const getRelatedProducts = (
  * @returns Array produk yang cocok dengan kata kunci.
  */
 export const searchProducts = (keyword: string): Product[] => {
+  const products = getAllProducts();
   if (!keyword || keyword.trim() === "") {
-    return PRODUCTS;
+    return products;
   }
   const cleanKeyword = keyword.toLowerCase().trim();
-  return PRODUCTS.filter(
+  return products.filter(
     (product) =>
       product.name.toLowerCase().includes(cleanKeyword) ||
       product.category.toLowerCase().includes(cleanKeyword) ||
@@ -142,12 +165,15 @@ export const searchProducts = (keyword: string): Product[] => {
  * @returns Array produk terfilter dan terurut.
  */
 export const filterProducts = (options: FilterOptions): Product[] => {
-  let result = [...PRODUCTS];
+  let result = getAllProducts();
 
   // Filter Kategori
   if (options.category && options.category !== "semua" && options.category !== "all") {
+    const cleanCat = options.category.toLowerCase().trim();
     result = result.filter(
-      (p) => p.category.toLowerCase() === options.category?.toLowerCase()
+      (p) =>
+        p.category.toLowerCase() === cleanCat ||
+        p.category.toLowerCase().replace(/\s+/g, "-") === cleanCat
     );
   }
 
@@ -214,12 +240,13 @@ export const filterProducts = (options: FilterOptions): Product[] => {
 /**
  * Menghitung jumlah produk berdasarkan ID, Slug, atau Nama Kategori.
  * 
- * @param categoryIdentifier - ID, slug, atau nama kategori (contoh: "cat-1", "rotan", "Kayu").
+ * @param categoryIdentifier - ID, slug, atau nama kategori (contoh: "cat-1", "rotan", "Kayu", "souvenir").
  * @returns Jumlah integer produk yang tergolong dalam kategori tersebut.
  */
 export const getProductCountByCategory = (categoryIdentifier: string): number => {
   if (!categoryIdentifier) return 0;
   const target = categoryIdentifier.toLowerCase().trim();
+  const allProds = getAllProducts();
 
   // Cari kategori di daftar CATEGORIES jika identifier berupa ID atau slug
   const matchedCat = CATEGORIES.find(
@@ -232,11 +259,12 @@ export const getProductCountByCategory = (categoryIdentifier: string): number =>
   const searchSlug = matchedCat ? matchedCat.slug.toLowerCase() : target;
   const searchName = matchedCat ? matchedCat.name.toLowerCase() : target;
 
-  return PRODUCTS.filter(
+  return allProds.filter(
     (product) =>
       product.category.toLowerCase() === searchSlug ||
       product.category.toLowerCase() === searchName ||
-      product.category.toLowerCase().replace(/\s+/g, "-") === searchSlug
+      product.category.toLowerCase().replace(/\s+/g, "-") === searchSlug ||
+      product.category.toLowerCase().replace(/\s+/g, "-") === searchName
   ).length;
 };
 
@@ -273,5 +301,3 @@ export const sortProducts = (
       return sorted;
   }
 };
-
-

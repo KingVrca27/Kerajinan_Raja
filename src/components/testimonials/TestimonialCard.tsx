@@ -1,9 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Star, Quote } from "lucide-react";
+import { Star, Quote, User } from "lucide-react";
 import { TestimonialItem } from "@/src/constants/testimonials";
 
 export interface TestimonialCardProps {
@@ -11,6 +11,21 @@ export interface TestimonialCardProps {
   testimonial: TestimonialItem;
   /** Kelas CSS tambahan */
   className?: string;
+}
+
+/**
+ * Memvalidasi apakah URL avatar aman untuk dirender ke next/image.
+ * Menolak: string kosong, "NULL", "null", undefined, dan URL non-http/path.
+ */
+function isValidImageUrl(url: string | null | undefined): url is string {
+  if (!url) return false;
+  if (url === "NULL" || url === "null") return false;
+  if (url.trim() === "") return false;
+  return (
+    url.startsWith("http://") ||
+    url.startsWith("https://") ||
+    url.startsWith("/")
+  );
 }
 
 /**
@@ -22,6 +37,9 @@ export const TestimonialCard: React.FC<TestimonialCardProps> = ({
   className = "",
 }) => {
   const { name, city, rating, comment, avatar } = testimonial;
+  const [imgError, setImgError] = useState(false);
+
+  const showImage = isValidImageUrl(avatar) && !imgError;
 
   return (
     <motion.div
@@ -58,14 +76,22 @@ export const TestimonialCard: React.FC<TestimonialCardProps> = ({
 
       {/* Baris Bawah: Avatar, Nama, dan Kota Pelanggan */}
       <div className="mt-6 flex items-center gap-3.5 pt-4 border-t border-primary/10">
-        <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-full border-2 border-primary/20 shadow-xs">
-          <Image
-            src={avatar}
-            alt={`Avatar ${name}`}
-            fill
-            sizes="48px"
-            className="object-cover object-center transition-transform duration-300 group-hover:scale-110"
-          />
+        <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-full border-2 border-primary/20 shadow-xs bg-primary/10">
+          {showImage ? (
+            <Image
+              src={avatar}
+              alt={`Avatar ${name}`}
+              fill
+              sizes="48px"
+              className="object-cover object-center transition-transform duration-300 group-hover:scale-110"
+              onError={() => setImgError(true)}
+            />
+          ) : (
+            /* Fallback: ikon User jika avatar tidak tersedia atau gagal load */
+            <div className="flex h-full w-full items-center justify-center text-primary">
+              <User className="h-6 w-6" />
+            </div>
+          )}
         </div>
         <div className="flex flex-col min-w-0">
           <h4 className="font-heading text-sm font-bold text-text-primary truncate">

@@ -31,7 +31,7 @@ export interface TestimonialContent {
 }
 
 /**
- * Data Terpusat Seksi Testimoni Pelanggan Kerajinan Raja.
+ * Data Terpusat Seksi Testimoni Pelanggan Putra Art Shop.
  * Seluruh data (nama, kota, rating, ulasan, path avatar) dikelola di sini
  * sehingga pengujian dan pembaruan data dapat dilakukan tanpa mengubah kode komponen.
  */
@@ -48,7 +48,7 @@ export const TESTIMONIAL_CONTENT: TestimonialContent = {
       rating: 5,
       comment:
         "Ukiran kayu khas Lombok yang saya pesan kualitasnya luar biasa halus dan detil! Packing sangat aman menggunakan kayu tambahan. Recommended seller!",
-      avatar: "/images/testimonials/avatar-1.jpg",
+      avatar: "",
     },
     {
       id: "testi-2",
@@ -57,7 +57,7 @@ export const TESTIMONIAL_CONTENT: TestimonialContent = {
       rating: 5,
       comment:
         "Sangat bangga bisa mengoleksi kerajinan otentik dari Lombok. Pelayanan via WhatsApp sangat ramah dan responsif. Pengiriman ke Surabaya super cepat!",
-      avatar: "/images/testimonials/avatar-2.jpg",
+      avatar: "",
     },
     {
       id: "testi-3",
@@ -66,7 +66,7 @@ export const TESTIMONIAL_CONTENT: TestimonialContent = {
       rating: 5,
       comment:
         "Produk kerajinan rotan dan kayu jadikan nuansa ruang tamu rumah saya di Bandung semakin hangat dan estetik. Kualitas finishingnya juara!",
-      avatar: "/images/testimonials/avatar-3.jpg",
+      avatar: "",
     },
     {
       id: "testi-4",
@@ -74,8 +74,8 @@ export const TESTIMONIAL_CONTENT: TestimonialContent = {
       city: "Yogyakarta",
       rating: 5,
       comment:
-        "Membeli souvenir untuk oleh-oleh kantor lewat Kerajinan Raja sangat mudah. Admin cepat tanggap dan produk sesuai persis dengan gambar katalog.",
-      avatar: "/images/testimonials/avatar-4.jpg",
+        "Membeli souvenir untuk oleh-oleh kantor lewat Putra Art Shop sangat mudah. Admin cepat tanggap dan produk sesuai persis dengan gambar katalog.",
+      avatar: "",
     },
     {
       id: "testi-5",
@@ -84,7 +84,7 @@ export const TESTIMONIAL_CONTENT: TestimonialContent = {
       rating: 5,
       comment:
         "Nilai seni dan kebudayaan Lombok yang dituangkan pada ukiran kayu ini benar-benar memikat. Bahannya kokoh dan terasa sangat premium.",
-      avatar: "/images/testimonials/avatar-5.jpg",
+      avatar: "",
     },
     {
       id: "testi-6",
@@ -93,7 +93,7 @@ export const TESTIMONIAL_CONTENT: TestimonialContent = {
       rating: 5,
       comment:
         "Pengiriman dari Lombok ke Medan sampai dengan selamat tanpa cacat sedikitpun. Senang bisa ikut mendukung pengrajin UMKM lokal Indonesia!",
-      avatar: "/images/testimonials/avatar-6.jpg",
+      avatar: "",
     },
   ],
 };

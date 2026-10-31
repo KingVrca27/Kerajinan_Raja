@@ -9,7 +9,7 @@
 
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState } from "react";
 import { notificationRepository } from "@/src/lib/notificationRepository";
 
 const REFRESH_INTERVAL_MS = 60_000; // 60 detik
@@ -17,17 +17,26 @@ const REFRESH_INTERVAL_MS = 60_000; // 60 detik
 export const AdminNotificationBadge: React.FC = () => {
   const [count, setCount] = useState<number>(0);
 
-  const fetchCount = useCallback(async () => {
-    const c = await notificationRepository.getUnreadCount();
-    setCount(c);
-  }, []);
-
   useEffect(() => {
-    fetchCount();
+    let cancelled = false;
 
+    const fetchCount = async () => {
+      try {
+        const c = await notificationRepository.getUnreadCount();
+        if (!cancelled) setCount(c);
+      } catch {
+        // Silently ignore — network errors & AbortErrors on unmount
+      }
+    };
+
+    fetchCount();
     const interval = setInterval(fetchCount, REFRESH_INTERVAL_MS);
-    return () => clearInterval(interval);
-  }, [fetchCount]);
+
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, []);
 
   if (count === 0) return null;
 

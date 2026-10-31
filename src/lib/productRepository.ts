@@ -281,6 +281,7 @@ function mapDbProductToProduct(row: DbProductWithRelations): Product {
     // --- Spesifikasi Fisik (opsional) ---
     dimensions: resolveDimensions(row.length_cm, row.width_cm, row.height_cm),
     weight:     resolveWeight(row.weight_gram),
+    weight_gram: row.weight_gram ?? 0,
     material:   undefined, // Belum ada kolom material di database
   };
 }
@@ -792,7 +793,15 @@ export const productRepository = {
       });
 
       if (error) {
-        console.error("[productRepository.getBestSellerProducts] Supabase error:", error.message);
+        // Network-level failures (fetch failed, ECONNRESET, timeout) are transient—log as warn, not error.
+        const isNetworkError = error.message?.toLowerCase().includes("fetch") ||
+          error.message?.toLowerCase().includes("econnreset") ||
+          error.message?.toLowerCase().includes("timeout");
+        if (isNetworkError) {
+          console.warn("[productRepository.getBestSellerProducts] Network error (will use fallback):", error.message);
+        } else {
+          console.error("[productRepository.getBestSellerProducts] Supabase error:", error.message);
+        }
         // Fallback: kembalikan produk default terbatas tanpa full-table fetch
         const { data: defaultData } = await buildBaseQuery().limit(limit);
         if (!defaultData) return [];
@@ -852,7 +861,16 @@ export const productRepository = {
       
       return bestSellers;
     } catch (err) {
-      console.error("[productRepository.getBestSellerProducts] Unexpected error:", err);
+      // Distinguish transient network errors from real logic errors
+      const errMsg = err instanceof Error ? err.message : String(err);
+      const isNetworkError = errMsg.toLowerCase().includes("fetch") ||
+        errMsg.toLowerCase().includes("econnreset") ||
+        errMsg.toLowerCase().includes("timeout");
+      if (isNetworkError) {
+        console.warn("[productRepository.getBestSellerProducts] Network error (will use fallback):", errMsg);
+      } else {
+        console.error("[productRepository.getBestSellerProducts] Unexpected error:", err);
+      }
       // Fallback: kembalikan produk default terbatas
       try {
         const { data: defaultData } = await buildBaseQuery().limit(limit);

@@ -1,13 +1,16 @@
 import { MetadataRoute } from "next";
-import { getAllProducts } from "@/src/lib/product";
+import productRepository from "@/src/lib/productRepository";
 
 /**
  * Generator Sitemap XML Otomatis untuk Next.js 15 App Router.
  * Mengindeks rute utama situs serta seluruh rute detail produk dinamis.
+ *
+ * Data produk diambil dari Supabase melalui productRepository —
+ * tidak ada lagi ketergantungan pada data statis.
  */
-export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://kerajinanraja.com";
-
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // Fallback ke localhost karena domain production (Putra Art Shop) belum dikonfigurasi secara final.
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
   // 1. Rute Halaman Statis Utama
   const staticRoutes: MetadataRoute.Sitemap = [
     {
@@ -30,8 +33,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  // 2. Rute Halaman Detail Produk Dinamis
-  const products = getAllProducts();
+  // 2. Rute Halaman Detail Produk Dinamis dari Supabase
+  const products = await productRepository.getProducts();
   const productRoutes: MetadataRoute.Sitemap = products.map((product) => ({
     url: `${baseUrl}/produk/${product.slug}`,
     lastModified: new Date(),

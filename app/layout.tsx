@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import { Inter, Poppins } from "next/font/google";
+import { Inter, Poppins, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import MainLayout from "@/src/components/layout/MainLayout";
 import { OrganizationJsonLd, WebSiteJsonLd } from "@/src/components/seo/JsonLd";
+import DynamicFavicon from "@/src/components/common/DynamicFavicon";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -16,18 +17,24 @@ const poppins = Poppins({
   weight: ["400", "500", "600", "700"],
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://kerajinanraja.com";
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+});
+
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: siteUrl ? new URL(siteUrl) : undefined,
   title: {
-    default: "Kerajinan Raja | Kerajinan Tangan Asli Lombok",
-    template: "%s | Kerajinan Raja",
+    default: "Putra Art Shop | Kerajinan Tangan Asli Lombok",
+    template: "%s | Putra Art Shop",
   },
   description:
-    "Kerajinan Raja menyediakan berbagai kerajinan tangan khas Lombok, Nusa Tenggara Barat. Produk handmade berkualitas dari pengrajin lokal dengan pemesanan mudah melalui WhatsApp.",
+    "Putra Art Shop menyediakan berbagai kerajinan tangan khas Lombok, Nusa Tenggara Barat. Produk handmade berkualitas dari pengrajin lokal dengan pemesanan mudah dan pengiriman ke seluruh Indonesia.",
   keywords: [
-    "Kerajinan Raja",
+    "Putra Art Shop",
     "Kerajinan Lombok",
     "Kerajinan Tangan Lombok",
     "Ukiran Kayu Lombok",
@@ -37,9 +44,9 @@ export const metadata: Metadata = {
     "Dekorasi Kayu",
     "Pengrajin Lokal NTB",
   ],
-  authors: [{ name: "Kerajinan Raja", url: siteUrl }],
-  creator: "Kerajinan Raja",
-  publisher: "Kerajinan Raja",
+  authors: [{ name: "Putra Art Shop", url: siteUrl || "/" }],
+  creator: "Putra Art Shop",
+  publisher: "Putra Art Shop",
   robots: {
     index: true,
     follow: true,
@@ -53,36 +60,35 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "id_ID",
-    url: siteUrl,
-    siteName: "Kerajinan Raja",
-    title: "Kerajinan Raja | Kerajinan Tangan Asli Lombok",
+    url: siteUrl || "/",
+    siteName: "Putra Art Shop",
+    title: "Putra Art Shop | Kerajinan Tangan Asli Lombok",
     description:
-      "Kerajinan Raja menyediakan berbagai kerajinan tangan khas Lombok, Nusa Tenggara Barat. Produk handmade berkualitas dari pengrajin lokal dengan pemesanan mudah melalui WhatsApp.",
+      "Putra Art Shop menyediakan berbagai kerajinan tangan khas Lombok, Nusa Tenggara Barat. Produk handmade berkualitas dari pengrajin lokal dengan pemesanan mudah dan pengiriman ke seluruh Indonesia.",
     images: [
       {
         url: "/images/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Kerajinan Raja - Kerajinan Tangan Asli Lombok",
+        alt: "Putra Art Shop - Kerajinan Tangan Asli Lombok",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Kerajinan Raja | Kerajinan Tangan Asli Lombok",
+    title: "Putra Art Shop | Kerajinan Tangan Asli Lombok",
     description:
-      "Kerajinan Raja menyediakan berbagai kerajinan tangan khas Lombok, Nusa Tenggara Barat. Produk handmade berkualitas dari pengrajin lokal dengan pemesanan mudah melalui WhatsApp.",
+      "Putra Art Shop menyediakan berbagai kerajinan tangan khas Lombok, Nusa Tenggara Barat. Produk handmade berkualitas dari pengrajin lokal dengan pemesanan mudah dan pengiriman ke seluruh Indonesia.",
     images: ["/images/og-image.jpg"],
-    creator: "@kerajinanraja",
   },
   alternates: {
     canonical: "/",
   },
   manifest: "/site.webmanifest",
   icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon.ico",
-    apple: "/apple-touch-icon.png",
+    icon: "/favicon.ico?v=2",
+    shortcut: "/favicon.ico?v=2",
+    apple: "/apple-touch-icon.png?v=2",
   },
 };
 
@@ -92,8 +98,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" className={`${inter.variable} ${poppins.variable}`}>
+    <html lang="id" className={`${inter.variable} ${poppins.variable} ${playfair.variable}`}>
       <body className="antialiased">
+        <DynamicFavicon />
         <OrganizationJsonLd />
         <WebSiteJsonLd />
         <MainLayout>{children}</MainLayout>

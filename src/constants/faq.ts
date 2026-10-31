@@ -25,7 +25,7 @@ export interface FAQContent {
 }
 
 /**
- * Data Terpusat Seksi "Pertanyaan yang Sering Diajukan" (FAQ) Kerajinan Raja.
+ * Data Terpusat Seksi "Pertanyaan yang Sering Diajukan" (FAQ) Putra Art Shop.
  * Seluruh pertanyaan dan jawaban dikelola di sini sehingga dapat diperbarui atau
  * ditambah tanpa menyentuh logika komponen React.
  */
@@ -39,13 +39,13 @@ export const FAQ_CONTENT: FAQContent = {
       id: "faq-1",
       question: "Apakah produk benar-benar dibuat di Lombok?",
       answer:
-        "Ya, 100% otentik. Seluruh produk Kerajinan Raja diproduksi langsung oleh para pengrajin lokal berpengalaman di Lombok, Nusa Tenggara Barat (NTB) dengan memadukan keterampilan tradisional dan nilai seni khas lokal.",
+        "Ya, 100% otentik. Seluruh produk Putra Art Shop diproduksi langsung oleh para pengrajin lokal berpengalaman di Lombok, Nusa Tenggara Barat (NTB) dengan memadukan keterampilan tradisional dan nilai seni khas lokal.",
     },
     {
       id: "faq-2",
       question: "Bagaimana cara melakukan pemesanan?",
       answer:
-        "Pemesanan sangat mudah! Anda cukup memilih produk di situs kami, memasukkannya ke keranjang belanja, lalu mengklik tombol 'Checkout via WhatsApp'. Anda akan dihubungkan langsung dengan customer service kami untuk mengonfirmasi detail pesanan dan ongkos kirim.",
+        "Pemesanan sangat mudah! Anda cukup memilih produk di situs kami, memasukkannya ke keranjang belanja, lalu klik tombol checkout. Anda dapat menyelesaikan pesanan secara langsung di website kami.",
     },
     {
       id: "faq-3",
@@ -75,7 +75,7 @@ export const FAQ_CONTENT: FAQContent = {
       id: "faq-7",
       question: "Bagaimana cara pembayaran?",
       answer:
-        "Pembayaran dilakukan secara aman via transfer bank resmi (BCA, Mandiri, BRI, BNI) atau E-Wallet yang dikonfirmasi langsung saat melakukan chat dengan Customer Service kami di WhatsApp.",
+        "Pembayaran dilakukan secara aman via transfer bank resmi (BCA, Mandiri, BRI, BNI) atau E-Wallet. Konfirmasi pembayaran dilakukan bersama Customer Service kami setelah pesanan masuk.",
     },
     {
       id: "faq-8",

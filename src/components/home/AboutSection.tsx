@@ -13,10 +13,12 @@ import {
   Sparkles,
 } from "lucide-react";
 import { ABOUT_CONTENT } from "@/src/constants/about";
+import { DbAboutSection } from "@/src/lib/cmsRepository";
 
 export interface AboutSectionProps {
   /** Kelas CSS tambahan jika diperlukan */
   className?: string;
+  aboutData?: DbAboutSection | null;
 }
 
 /** Array ikon Lucide yang dipetakan ke 4 data statistik */
@@ -24,13 +26,24 @@ const STAT_ICONS = [Package, Users, Smile, Truck];
 
 /**
  * Komponen `AboutSection` merender tampilan seksi "Tentang Kami" yang menceritakan
- * identitas brand Kerajinan Raja sebagai penyedia kerajinan tangan khas Lombok, Nusa Tenggara Barat (NTB).
+ * identitas brand Putra Art Shop sebagai penyedia kerajinan tangan khas Lombok, Nusa Tenggara Barat (NTB).
  *
  * Mengambil seluruh data teks secara terpusat dari `constants/about.ts`.
  */
 export const AboutSection: React.FC<AboutSectionProps> = ({
   className = "",
+  aboutData,
 }) => {
+  if (aboutData && !aboutData.is_active) {
+    return null;
+  }
+
+  const title = aboutData?.title || ABOUT_CONTENT.title;
+  const description = aboutData?.content
+    ? aboutData.content.split('\n').filter(p => p.trim() !== '')
+    : ABOUT_CONTENT.description;
+  const imageSrc = aboutData?.image_url || ABOUT_CONTENT.image.src;
+
   return (
     <section
       id="tentang-kami"
@@ -54,7 +67,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
             {/* Frame Gambar Utama */}
             <div className="relative aspect-4/5 w-full overflow-hidden rounded-3xl border border-primary/10 bg-secondary/50 shadow-xl">
               <Image
-                src={ABOUT_CONTENT.image.src}
+                src={imageSrc}
                 alt={ABOUT_CONTENT.image.alt}
                 fill
                 sizes="(max-width: 1024px) 100vw, 45vw"
@@ -98,12 +111,12 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
 
             {/* 2. Judul Utama */}
             <h2 className="font-heading text-3xl font-extrabold tracking-tight text-text-primary sm:text-4xl lg:text-5xl leading-tight">
-              {ABOUT_CONTENT.title}
+              {title}
             </h2>
 
             {/* 3. Deskripsi Paragraf Storytelling */}
             <div className="space-y-4 font-body text-base sm:text-lg text-text-secondary leading-relaxed">
-              {ABOUT_CONTENT.description.map((paragraph, index) => (
+              {description.map((paragraph, index) => (
                 <p key={index}>{paragraph}</p>
               ))}
             </div>

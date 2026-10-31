@@ -50,6 +50,7 @@ export const CartItem: React.FC<CartItemProps> = ({
           fill
           sizes="80px"
           className="object-cover object-center transition-transform duration-300 group-hover:scale-105 rounded-lg"
+          unoptimized
         />
       </div>
 

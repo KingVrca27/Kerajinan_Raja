@@ -3,6 +3,9 @@
 import React, { createContext, useState, useEffect, useCallback, ReactNode } from "react";
 import { Product } from "@/src/types/product";
 import { CartItem } from "@/src/types/cart";
+import { createClient } from "@/src/lib/supabaseBrowser";
+import { User } from "@supabase/supabase-js";
+import { useRouter, usePathname } from "next/navigation";
 
 /** Kunci penyimpanan data keranjang pada localStorage browser */
 const CART_STORAGE_KEY = "kerajinan_raja_cart_v1";
@@ -80,6 +83,29 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState<boolean>(false);
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
+  const [user, setUser] = useState<User | null>(null);
+
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // 0. Listener Auth State
+  useEffect(() => {
+    const supabase = createClient();
+    
+    // Initial fetch
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data.user);
+    });
+
+    // Subscribe to auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   // 1. Baca data keranjang dari localStorage saat pertama kali dirender di Client (SSR safe)
   useEffect(() => {
@@ -112,6 +138,13 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   // Fungsi menambah produk ke keranjang
   const addItem = useCallback(
     (product: Product, quantity = 1, selectedVariant?: string) => {
+      if (!user) {
+        const currentQuery = typeof window !== "undefined" ? window.location.search : "";
+        const redirectUrl = currentQuery ? `${pathname}${currentQuery}` : pathname;
+        router.push(`/login?redirect=${encodeURIComponent(redirectUrl)}`);
+        return;
+      }
+
       setItems((prevItems) => {
         const existingIndex = prevItems.findIndex(
           (item) =>
@@ -148,7 +181,7 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
 
       setIsCartOpen(true);
     },
-    []
+    [user, router, pathname]
   );
 
   // Fungsi menghapus produk dari keranjang
@@ -212,9 +245,15 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const toggleCart = useCallback(() => setIsCartOpen((prev) => !prev), []);
 
   const openCheckoutModal = useCallback(() => {
+    if (!user) {
+      const currentQuery = typeof window !== "undefined" ? window.location.search : "";
+      const redirectUrl = currentQuery ? `${pathname}${currentQuery}` : pathname;
+      router.push(`/login?redirect=${encodeURIComponent(redirectUrl)}`);
+      return;
+    }
     setIsCartOpen(false); // Tutup drawer keranjang saat modal checkout terbuka
     setIsCheckoutModalOpen(true);
-  }, []);
+  }, [user, router, pathname]);
 
   const closeCheckoutModal = useCallback(() => {
     setIsCheckoutModalOpen(false);

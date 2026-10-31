@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -9,7 +9,6 @@ import {
   Home,
   Star,
   ShoppingCart,
-  MessageCircle,
   Sparkles,
   Award,
   Flame,
@@ -17,14 +16,22 @@ import {
   Package,
   Ruler,
   Weight,
+  MessageCircle,
+  Minus,
+  Plus,
+  Zap,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Product } from "@/src/types/product";
+import { ReviewWithDetails } from "@/src/types/ops";
 import { formatRupiah } from "@/src/lib/currency";
-import { generateSingleProductWhatsAppURL } from "@/src/lib/whatsapp";
+import { createClient } from "@/src/lib/supabaseBrowser";
+
 import ProductGrid from "@/src/components/product/ProductGrid";
 import { useCart } from "@/src/hooks/useCart";
 import { useWishlist } from "@/src/hooks/useWishlist";
 import WishlistButton from "@/src/components/wishlist/WishlistButton";
+import ProductChatPanel from "@/src/components/chat/ProductChatPanel";
 
 /**
  * Interface props untuk komponen ProductDetailView.
@@ -34,6 +41,8 @@ export interface ProductDetailViewProps {
   product: Product;
   /** Array daftar produk terkait */
   relatedProducts: Product[];
+  /** Array daftar ulasan pelanggan */
+  reviews?: ReviewWithDetails[];
   /** Kelas CSS tambahan untuk pengayaan tampilan */
   className?: string;
 }
@@ -45,9 +54,35 @@ export interface ProductDetailViewProps {
 export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
   product,
   relatedProducts,
+  reviews = [],
   className = "",
 }) => {
-  const { addItem } = useCart();
+  const { addItem, openCheckoutModal } = useCart();
+  const [quantity, setQuantity] = useState<number>(1);
+  const router = useRouter();
+  const supabase = createClient();
+  const [isChatOpen, setIsChatOpen] = useState(false);
+
+  const handleOpenChat = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      router.push(`/login?redirect=/produk/${product.slug}`);
+      return;
+    }
+    setIsChatOpen(true);
+  };
+
+  const handleAddToCart = () => {
+    addItem(product, quantity);
+  };
+
+  const handleBuyNow = () => {
+    addItem(product, quantity);
+    openCheckoutModal();
+  };
+
+  const decrementQty = () => setQuantity((prev) => Math.max(1, prev - 1));
+  const incrementQty = () => setQuantity((prev) => Math.min(product.stock, prev + 1));
 
   // Ambil daftar gambar atau gunakan gambar utama sebagai fallback
   const images =
@@ -58,11 +93,91 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
   // State untuk menyimpan index gambar aktif di galeri
   const [selectedImageIndex, setSelectedImageIndex] = useState<number>(0);
 
-  // Buat URL Direct Link WhatsApp menggunakan helper lib/whatsapp.ts
-  const whatsappUrl = generateSingleProductWhatsAppURL(
-    product.name,
-    product.price
-  );
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [conversationId, setConversationId] = useState<string | null>(null);
+
+  // Load conversation ID and unread count
+  useEffect(() => {
+    let isMounted = true;
+    const fetchUnread = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      
+      const { data: conv } = await supabase
+        .from("conversations")
+        .select("id")
+        .eq("customer_id", user.id)
+        .eq("product_id", product.id)
+        .maybeSingle();
+
+      if (!conv && isMounted) {
+        setUnreadCount(0);
+        return;
+      }
+
+      if (isMounted && conv) {
+        setConversationId(conv.id);
+        
+        const { count } = await supabase
+          .from("messages")
+          .select("id", { count: "exact", head: true })
+          .eq("conversation_id", conv.id)
+          .eq("is_read_by_customer", false);
+          
+        if (isMounted) {
+          setUnreadCount(count || 0);
+        }
+      }
+    };
+    fetchUnread();
+  }, [product.id, isChatOpen, supabase]); 
+
+  // Realtime subscription for unread count while chat is closed
+  useEffect(() => {
+    if (isChatOpen || !conversationId) return;
+    let isMounted = true;
+    let currentUserId = "";
+    supabase.auth.getUser().then(res => currentUserId = res.data.user?.id || "");
+
+    const channel = supabase
+      .channel(`unread:conv:${conversationId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "messages",
+          filter: `conversation_id=eq.${conversationId}`,
+        },
+        async (payload) => {
+          if (payload.eventType === "INSERT") {
+            const newMsg = payload.new as { sender_id: string };
+            if (newMsg.sender_id !== currentUserId) {
+              setUnreadCount(prev => prev + 1);
+            }
+          } else if (payload.eventType === "UPDATE") {
+            // Re-fetch unread count from db
+            const { count } = await supabase
+              .from("messages")
+              .select("id", { count: "exact", head: true })
+              .eq("conversation_id", conversationId)
+              .eq("is_read_by_customer", false);
+            
+            if (isMounted) {
+              setUnreadCount(count || 0);
+            }
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      isMounted = false;
+      supabase.removeChannel(channel);
+    };
+  }, [isChatOpen, conversationId, supabase]);
+
+
 
   return (
     <div className={`min-h-screen bg-background py-8 sm:py-12 ${className}`}>
@@ -118,7 +233,8 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
                 fill
                 priority
                 sizes="(max-width: 768px) 100vw, 50vw"
-                className="object-contain p-6 transition-all duration-300 hover:scale-105"
+                className="object-cover transition-all duration-300 hover:scale-105"
+                unoptimized
               />
             </div>
 
@@ -142,6 +258,7 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
                       fill
                       sizes="80px"
                       className="object-cover"
+                      unoptimized
                     />
                   </button>
                 ))}
@@ -215,31 +332,87 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
               </div>
             </div>
 
-            {/* 4. Tombol Aksi */}
-            <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
-              {/* Tombol Tambah ke Keranjang */}
+            {/* 4. Quantity Selector */}
+            {product.stock > 0 && (
+              <div className="flex items-center gap-3">
+                <span className="font-body text-sm font-semibold text-text-secondary">Jumlah:</span>
+                <div className="flex items-center rounded-xl border border-primary/20 bg-secondary/40 overflow-hidden">
+                  <button
+                    type="button"
+                    aria-label="Kurangi jumlah"
+                    onClick={decrementQty}
+                    disabled={quantity <= 1}
+                    className="flex h-10 w-10 items-center justify-center text-text-secondary transition-colors hover:bg-primary/10 hover:text-primary disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
+                  >
+                    <Minus className="h-3.5 w-3.5" />
+                  </button>
+                  <span className="w-10 text-center font-body text-sm font-bold text-text-primary">
+                    {quantity}
+                  </span>
+                  <button
+                    type="button"
+                    aria-label="Tambah jumlah"
+                    onClick={incrementQty}
+                    disabled={quantity >= product.stock}
+                    className="flex h-10 w-10 items-center justify-center text-text-secondary transition-colors hover:bg-primary/10 hover:text-primary disabled:cursor-not-allowed disabled:opacity-40 cursor-pointer"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+                <span className="font-body text-xs text-text-secondary/60">
+                  Stok: {product.stock}
+                </span>
+              </div>
+            )}
+
+            {/* 5. Tombol Aksi: [ ♡ ] [ 💬 ] [ 🛒 ] [ Beli Sekarang ] */}
+            <div className="flex items-center gap-2.5 pt-1">
+
+              {/* Wishlist — icon only */}
+              <WishlistButton
+                product={product}
+                className="h-11 w-11 flex-shrink-0 border border-primary/20 shadow-sm rounded-xl"
+              />
+
+              {/* Chat — icon only */}
               <button
                 type="button"
-                onClick={() => addItem(product)}
-                className="flex-1 w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 font-body text-sm font-semibold text-white shadow-md shadow-primary/20 transition-all hover:bg-primary/90 hover:shadow-lg active:scale-95 cursor-pointer"
+                aria-label="Chat dengan Toko"
+                title="Chat dengan Toko"
+                onClick={handleOpenChat}
+                className="relative flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-secondary/70 border border-primary/20 text-primary shadow-sm transition-all hover:bg-secondary hover:shadow-md active:scale-95 cursor-pointer"
               >
-                <ShoppingCart className="h-4 w-4" />
-                <span>Tambah ke Keranjang</span>
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white shadow-sm border-2 border-[#FDFBF7]">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
+                <MessageCircle className="h-4.5 w-4.5" />
               </button>
 
-              {/* Tombol Wishlist Favorit */}
-              <WishlistButton product={product} className="border border-primary/10 shadow-sm p-3.5" />
-
-              {/* Tombol Beli via WhatsApp */}
-              <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-whatsapp px-6 py-3.5 font-body text-sm font-semibold text-white shadow-md shadow-whatsapp/20 transition-all hover:bg-whatsapp/90 hover:shadow-lg active:scale-95"
+              {/* Cart — icon only */}
+              <button
+                type="button"
+                aria-label="Tambah ke Keranjang"
+                title="Tambah ke Keranjang"
+                onClick={handleAddToCart}
+                disabled={product.stock <= 0}
+                className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-secondary/70 border border-primary/20 text-primary shadow-sm transition-all hover:bg-secondary hover:shadow-md active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
               >
-                <MessageCircle className="h-4 w-4 fill-white" />
-                <span>Beli via WhatsApp</span>
-              </a>
+                <ShoppingCart className="h-4.5 w-4.5" />
+              </button>
+
+              {/* Beli Sekarang — text button */}
+              <button
+                type="button"
+                onClick={handleBuyNow}
+                disabled={product.stock <= 0}
+                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-5 py-2.5 font-body text-sm font-bold text-white shadow-md shadow-primary/25 transition-all hover:bg-primary/90 hover:shadow-lg active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer min-h-[44px] whitespace-nowrap"
+              >
+                <Zap className="h-4 w-4 flex-shrink-0" />
+                <span>Beli Sekarang</span>
+              </button>
+
             </div>
 
             {/* Spesifikasi Produk (Bahan, Dimensi, Berat jika ada) */}
@@ -287,6 +460,74 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
           </p>
         </div>
 
+        {/* Section Ulasan Pelanggan */}
+        {reviews && reviews.length > 0 && (
+          <div className="space-y-6 pt-6 border-t border-primary/10">
+            <div>
+              <h2 className="font-heading text-2xl font-bold tracking-tight text-text-primary sm:text-3xl">
+                Ulasan Pelanggan
+              </h2>
+              <p className="mt-1 font-body text-sm text-text-secondary">
+                Apa kata pelanggan yang sudah membeli produk ini.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {reviews.map((review) => (
+                <div key={review.id} className="bg-white rounded-2xl border border-primary/10 shadow-sm space-y-3 overflow-hidden">
+                  {/* Foto review — hanya tampil jika ada */}
+                  {review.image_url && (
+                    <div className="w-full h-44 bg-gray-50 overflow-hidden">
+                      <img
+                        src={review.image_url}
+                        alt="Foto ulasan"
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                    </div>
+                  )}
+                  <div className="px-5 pb-5 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-gray-900">{review.customer_name}</span>
+                      <span className="text-xs text-gray-500">
+                        {new Intl.DateTimeFormat("id-ID", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric"
+                        }).format(new Date(review.created_at))}
+                      </span>
+                    </div>
+                    
+                    <div className="flex items-center gap-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star 
+                          key={star} 
+                          className={`h-4 w-4 ${star <= review.rating ? "fill-amber-400 text-amber-400" : "fill-gray-200 text-gray-200"}`} 
+                        />
+                      ))}
+                    </div>
+
+                    {review.title && (
+                      <h4 className="font-bold text-gray-900 text-sm mt-2">{review.title}</h4>
+                    )}
+                    {review.content && (
+                      <p className="text-gray-600 text-sm leading-relaxed">{review.content}</p>
+                    )}
+                    {review.admin_reply && (
+                      <div className="mt-4 bg-gray-50 p-3 rounded-xl border border-gray-100 relative">
+                        <div className="absolute -top-2 left-4 bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                          Balasan Penjual
+                        </div>
+                        <p className="text-gray-700 text-sm mt-1">{review.admin_reply}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* 6. Section Produk Terkait */}
         {relatedProducts && relatedProducts.length > 0 && (
           <div className="space-y-6 pt-6 border-t border-primary/10">
@@ -305,6 +546,12 @@ export const ProductDetailView: React.FC<ProductDetailViewProps> = ({
         )}
 
       </div>
+
+      <ProductChatPanel
+        isOpen={isChatOpen}
+        onClose={() => setIsChatOpen(false)}
+        product={product}
+      />
     </div>
   );
 };

@@ -48,6 +48,7 @@ export const ProductSearch: React.FC<ProductSearchProps> = ({
         value={value}
         onChange={handleChange}
         placeholder={placeholder}
+        suppressHydrationWarning
         className="w-full rounded-xl border border-primary/20 bg-background/90 py-2.5 pl-10 pr-9 font-body text-sm text-text-primary placeholder:text-text-secondary/60 shadow-sm transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
       />
 

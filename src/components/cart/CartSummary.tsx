@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { MessageCircle, ShieldCheck } from "lucide-react";
+import { MessageCircle, ShieldCheck, ShoppingBag } from "lucide-react";
 import { formatRupiah } from "@/src/lib/currency";
 
 export interface CartSummaryProps {
@@ -12,7 +12,7 @@ export interface CartSummaryProps {
   distinctProductsCount: number;
   /** Total nominal harga keranjang dalam Rupiah */
   subtotal: number;
-  /** Callback opsional saat tombol checkout WhatsApp diklik */
+  /** Callback opsional saat tombol checkout diklik */
   onCheckout?: () => void;
   /** Kelas CSS tambahan */
   className?: string;
@@ -20,7 +20,7 @@ export interface CartSummaryProps {
 
 /**
  * Komponen `CartSummary` merender ringkasan belanja pada bagian bawah keranjang,
- * menampilkan Jumlah Item, Total Jenis Produk, Subtotal Harga, serta Tombol "Checkout via WhatsApp".
+ * menampilkan Jumlah Item, Total Jenis Produk, Subtotal Harga, serta Tombol Checkout.
  */
 export const CartSummary: React.FC<CartSummaryProps> = ({
   totalItems,
@@ -56,22 +56,22 @@ export const CartSummary: React.FC<CartSummaryProps> = ({
         </div>
       </div>
 
-      {/* Tombol Checkout via WhatsApp */}
+      {/* Tombol Checkout */}
       <motion.button
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         type="button"
         onClick={onCheckout}
-        className="w-full flex items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 hover:from-emerald-500 hover:to-teal-500 px-5 py-3.5 font-body text-sm font-bold text-white shadow-lg shadow-emerald-600/25 transition-all focus:outline-none cursor-pointer"
+        className="w-full flex items-center justify-center gap-2.5 rounded-xl bg-gradient-to-r from-amber-600 via-amber-500 to-[#9D734E] hover:from-amber-500 hover:to-[#896342] px-5 py-3.5 font-body text-sm font-bold text-white shadow-lg shadow-amber-600/25 transition-all focus:outline-none cursor-pointer"
       >
-        <MessageCircle className="h-5 w-5 fill-white stroke-none" />
-        <span>Checkout via WhatsApp</span>
+        <ShoppingBag className="h-5 w-5 fill-white stroke-none" />
+        <span>Lanjut ke Pembayaran</span>
       </motion.button>
 
       {/* Catatan Bebas Ongkir / Informasi tambahan */}
-      <div className="flex items-center justify-center gap-1.5 text-center font-body text-[11px] font-medium text-emerald-800 bg-emerald-50/90 py-2 px-3 rounded-xl border border-emerald-200/60">
-        <ShieldCheck className="h-4 w-4 text-emerald-600 flex-shrink-0" />
-        <span>Transaksi aman & terhubung langsung ke WhatsApp CS Kerajinan Raja</span>
+      <div className="flex items-center justify-center gap-1.5 text-center font-body text-[11px] font-medium text-amber-800 bg-amber-50/90 py-2 px-3 rounded-xl border border-amber-200/60">
+        <ShieldCheck className="h-4 w-4 text-amber-600 flex-shrink-0" />
+        <span>Transaksi aman & terenkripsi oleh sistem kami</span>
       </div>
     </div>
   );

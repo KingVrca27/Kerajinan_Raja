@@ -28,18 +28,18 @@ export const EmptyWishlist: React.FC<EmptyWishlistProps> = ({
       className={`flex flex-col items-center justify-center py-12 px-6 text-center ${className}`}
     >
       {/* Container Ikon Lingkaran */}
-      <div className="relative mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-accent/10 text-accent shadow-inner">
+      <div className="relative mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-amber-100 to-amber-200/60 text-[#9D734E] border border-amber-300/50 shadow-inner">
         <Heart className="h-12 w-12 stroke-[1.5]" />
-        <div className="absolute -right-1 -top-1 flex h-7 w-7 items-center justify-center rounded-full bg-accent text-xs font-bold text-white shadow-xs">
+        <div className="absolute -right-1 -top-1 flex h-7 w-7 items-center justify-center rounded-full bg-[#9D734E] text-xs font-bold text-white shadow-xs">
           0
         </div>
       </div>
 
       {/* Judul & Deskripsi */}
-      <h3 className="font-heading text-xl font-bold text-text-primary sm:text-2xl">
+      <h3 className="font-heading text-xl font-bold text-gray-900 sm:text-2xl">
         Belum Ada Produk Favorit
       </h3>
-      <p className="mt-2 font-body text-sm text-text-secondary max-w-xs leading-relaxed">
+      <p className="mt-2 font-body text-sm text-gray-600 max-w-xs leading-relaxed">
         Simpan produk kerajinan favorit Anda dengan mengklik tombol ikon hati pada produk.
       </p>
 
@@ -49,7 +49,7 @@ export const EmptyWishlist: React.FC<EmptyWishlistProps> = ({
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
           type="button"
-          className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 font-body text-sm font-semibold text-white shadow-md transition-all hover:bg-primary/90 hover:shadow-lg focus:outline-none cursor-pointer"
+          className="mt-6 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#9D734E] via-[#896342] to-[#765335] px-6 py-3 font-body text-sm font-semibold text-white shadow-md shadow-amber-900/20 transition-all hover:opacity-95 hover:shadow-lg focus:outline-none cursor-pointer"
         >
           <span>Mulai Jelajahi Produk</span>
           <ArrowRight className="h-4 w-4" />

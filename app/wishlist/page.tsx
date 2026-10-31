@@ -7,22 +7,22 @@ import WishlistClientView from "@/src/components/wishlist/WishlistClientView";
 export const metadata: Metadata = {
   title: "Produk Favorit",
   description:
-    "Daftar produk kerajinan tangan Lombok favorit yang tersimpan dalam koleksi pribadi Anda di Kerajinan Raja.",
+    "Daftar produk kerajinan tangan Lombok favorit yang tersimpan dalam koleksi pribadi Anda di Putra Art Shop.",
   alternates: {
     canonical: "/wishlist",
   },
   openGraph: {
-    title: "Produk Favorit | Kerajinan Raja",
+    title: "Produk Favorit | Putra Art Shop",
     description:
-      "Daftar produk kerajinan tangan Lombok favorit yang tersimpan dalam koleksi pribadi Anda di Kerajinan Raja.",
-    url: "https://kerajinanraja.com/wishlist",
+      "Daftar produk kerajinan tangan Lombok favorit yang tersimpan dalam koleksi pribadi Anda di Putra Art Shop.",
+    url: "/wishlist",
     images: ["/images/og-image.jpg"],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Produk Favorit | Kerajinan Raja",
+    title: "Produk Favorit | Putra Art Shop",
     description:
-      "Daftar produk kerajinan tangan Lombok favorit yang tersimpan dalam koleksi pribadi Anda di Kerajinan Raja.",
+      "Daftar produk kerajinan tangan Lombok favorit yang tersimpan dalam koleksi pribadi Anda di Putra Art Shop.",
     images: ["/images/og-image.jpg"],
   },
 };
@@ -33,3 +33,4 @@ export const metadata: Metadata = {
 export default function WishlistPage() {
   return <WishlistClientView />;
 }
+

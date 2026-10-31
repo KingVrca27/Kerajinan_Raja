@@ -1,8 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Filter, ChevronDown } from "lucide-react";
 import CATEGORIES from "@/src/constants/categories";
+import adminStorage from "@/src/lib/adminStorage";
+import { Category } from "@/src/types/category";
 
 /**
  * Interface props untuk komponen ProductFilter.
@@ -18,13 +20,23 @@ export interface ProductFilterProps {
 
 /**
  * Komponen ProductFilter menyediakan menu dropdown penyaringan produk berdasarkan kategori.
- * Data kategori diambil dari constants/categories.ts.
+ * Data kategori diambil dari API/storage dinamis.
  */
 export const ProductFilter: React.FC<ProductFilterProps> = ({
   selectedCategory = "all",
   onCategoryChange,
   className = "",
 }) => {
+  const [categories, setCategories] = useState<Category[]>(CATEGORIES);
+
+  useEffect(() => {
+    adminStorage.getCategories().then((data) => {
+      if (data && data.length > 0) {
+        setCategories(data);
+      }
+    });
+  }, []);
+
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     onCategoryChange(e.target.value);
   };
@@ -40,11 +52,12 @@ export const ProductFilter: React.FC<ProductFilterProps> = ({
       <select
         value={selectedCategory}
         onChange={handleChange}
+        suppressHydrationWarning
         className="w-full appearance-none rounded-xl border border-primary/20 bg-background/90 py-2.5 pl-10 pr-9 font-body text-sm text-text-primary shadow-sm transition-all focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
       >
         <option value="all">Semua Kategori</option>
-        {CATEGORIES.map((cat) => (
-          <option key={cat.id} value={cat.slug}>
+        {categories.map((cat) => (
+          <option key={cat.id} value={cat.slug || cat.id}>
             {cat.name}
           </option>
         ))}
