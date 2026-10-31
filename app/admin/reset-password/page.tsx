@@ -1,11 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createClient } from "@/src/lib/supabaseBrowser";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Loader2, Lock, ShieldCheck } from "lucide-react";
+import { Eye, EyeOff, Loader2, Lock, ShieldCheck, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+
+// Status validasi sesi recovery
+type SessionStatus = "checking" | "valid" | "invalid";
 
 export default function AdminResetPasswordPage() {
   const [password, setPassword] = useState("");
@@ -14,9 +17,45 @@ export default function AdminResetPasswordPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  
+  // "checking": sedang menunggu event, "valid": sesi recovery OK, "invalid": tidak ada recovery session
+  const [sessionStatus, setSessionStatus] = useState<SessionStatus>("checking");
+
   const router = useRouter();
   const supabase = createClient();
+
+  // Validasi recovery session menggunakan onAuthStateChange.
+  // Supabase browser client akan menerima event PASSWORD_RECOVERY saat pengguna
+  // membuka halaman ini setelah melewati /auth/callback dengan token recovery yang valid.
+  useEffect(() => {
+    // Cek apakah sudah ada sesi aktif saat mount (callback sudah diproses)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        // Sesi sudah ada (callback telah berhasil exchange code)
+        // Kita izinkan form tampil — session yang ada adalah recovery session
+        setSessionStatus("valid");
+      } else {
+        // Tidak ada sesi — pengguna mungkin mengakses halaman ini langsung
+        setSessionStatus("invalid");
+      }
+    });
+
+    // Dengarkan event PASSWORD_RECOVERY dari Supabase auth
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setSessionStatus("valid");
+      } else if (event === "SIGNED_OUT") {
+        // Hanya set invalid jika bukan setelah kita sendiri memanggil signOut (success flow)
+        setSessionStatus("invalid");
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,7 +82,7 @@ export default function AdminResetPasswordPage() {
 
     try {
       const { error: updateError } = await supabase.auth.updateUser({
-        password: password
+        password: password,
       });
 
       if (updateError) {
@@ -51,21 +90,67 @@ export default function AdminResetPasswordPage() {
       }
 
       setSuccess(true);
-      
+
       // Admin harus melalui login normal untuk mendapatkan guard
       await supabase.auth.signOut();
-      
+
       setTimeout(() => {
         router.push("/admin?reset=success");
       }, 3000);
-
-    } catch (err: any) {
-      setError(err.message || "Gagal mengubah kata sandi. Tautan mungkin kedaluwarsa.");
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : "Gagal mengubah kata sandi. Tautan mungkin kedaluwarsa.";
+      setError(message);
     } finally {
       setLoading(false);
     }
   };
 
+  // ── Tampilkan loading saat mengecek sesi ────────────────────────────────────
+  if (sessionStatus === "checking") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-secondary/30 px-4 py-12">
+        <div className="flex flex-col items-center gap-3 text-text-secondary">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="font-body text-sm">Memverifikasi sesi pemulihan...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Tampilkan error jika tidak ada recovery session ─────────────────────────
+  if (sessionStatus === "invalid") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-secondary/30 px-4 py-12">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="w-full max-w-md rounded-3xl border border-red-100 bg-white p-8 text-center shadow-xl"
+        >
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-100 text-red-600 mb-4">
+            <AlertCircle className="h-8 w-8" />
+          </div>
+          <h2 className="text-xl font-heading font-bold text-gray-900 mb-2">
+            Tautan Tidak Valid
+          </h2>
+          <p className="font-body text-sm text-gray-600 mb-6">
+            Sesi pemulihan tidak ditemukan. Tautan mungkin sudah kedaluwarsa
+            atau telah digunakan sebelumnya.
+          </p>
+          <Link
+            href="/admin/forgot-password"
+            className="font-body text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
+          >
+            Minta Tautan Reset Baru
+          </Link>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // ── Tampilan sukses ─────────────────────────────────────────────────────────
   if (success) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-secondary/30 px-4 py-12">
@@ -77,11 +162,16 @@ export default function AdminResetPasswordPage() {
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-green-100 text-green-600 mb-4">
             <ShieldCheck className="h-8 w-8" />
           </div>
-          <h2 className="text-xl font-heading font-bold text-gray-900 mb-2">Sandi Berhasil Diubah</h2>
+          <h2 className="text-xl font-heading font-bold text-gray-900 mb-2">
+            Sandi Berhasil Diubah
+          </h2>
           <p className="font-body text-sm text-gray-600 mb-6">
             Anda akan diarahkan ke halaman login dalam beberapa detik.
           </p>
-          <Link href="/admin" className="font-body text-sm font-semibold text-primary hover:text-primary/80 transition-colors">
+          <Link
+            href="/admin"
+            className="font-body text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
+          >
             Ke Halaman Login Sekarang
           </Link>
         </motion.div>
@@ -89,6 +179,7 @@ export default function AdminResetPasswordPage() {
     );
   }
 
+  // ── Form reset password ─────────────────────────────────────────────────────
   return (
     <div className="min-h-screen flex items-center justify-center bg-secondary/30 px-4 py-12">
       <motion.div
@@ -112,7 +203,10 @@ export default function AdminResetPasswordPage() {
 
           <form className="mt-6 space-y-4 font-body" onSubmit={handleUpdatePassword}>
             <div>
-              <label htmlFor="password" className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-text-primary">
+              <label
+                htmlFor="password"
+                className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-text-primary"
+              >
                 Sandi Baru
               </label>
               <div className="relative">
@@ -139,9 +233,12 @@ export default function AdminResetPasswordPage() {
                 </button>
               </div>
             </div>
-            
+
             <div>
-              <label htmlFor="confirm-password" className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-text-primary">
+              <label
+                htmlFor="confirm-password"
+                className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-text-primary"
+              >
                 Konfirmasi Sandi Baru
               </label>
               <div className="relative">
@@ -162,7 +259,11 @@ export default function AdminResetPasswordPage() {
               </div>
             </div>
 
-            {error && <div className="text-red-500 text-xs font-semibold bg-red-50 p-2 rounded-lg border border-red-100">{error}</div>}
+            {error && (
+              <div className="text-red-500 text-xs font-semibold bg-red-50 p-2 rounded-lg border border-red-100">
+                {error}
+              </div>
+            )}
 
             <motion.button
               whileHover={loading ? {} : { scale: 1.01 }}

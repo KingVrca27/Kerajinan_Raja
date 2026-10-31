@@ -40,14 +40,36 @@ export default function AdminLoginPage() {
   const sessionChecked = useRef(false);
 
   // Periksa sesi aktif satu kali saat mount.
-  // Jika sudah login, langsung redirect ke dashboard.
+  // PENTING: Jangan redirect jika ini adalah recovery session.
+  // Recovery session terjadi setelah admin mengklik link reset password.
+  // Pada kondisi tersebut, user harus diarahkan ke /admin/reset-password, bukan dashboard.
   useEffect(() => {
     if (sessionChecked.current) return;
     sessionChecked.current = true;
 
+    // Jika URL mengandung ?reset=success, ini adalah redirect balik dari reset-password
+    // (setelah signOut berhasil) — tidak perlu cek session, biarkan halaman tampil normal.
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("reset") === "success") return;
+
+    // Dengarkan event auth untuk mendeteksi recovery session
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
+        // Ini adalah recovery session — jangan redirect ke dashboard,
+        // arahkan ke halaman reset password agar admin dapat mengubah sandi.
+        subscription.unsubscribe();
+        router.replace("/admin/reset-password");
+        return;
+      }
+    });
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
+        // Sesi aktif yang bukan recovery — redirect ke dashboard (login normal)
+        subscription.unsubscribe();
         router.replace("/admin/dashboard");
+      } else {
+        subscription.unsubscribe();
       }
     });
   }, [router, supabase.auth]);

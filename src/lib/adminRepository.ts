@@ -409,8 +409,15 @@ export const adminRepository = {
    * Supabase akan kirim link ke email admin yang bersangkutan.
    */
   async sendPasswordReset(email: string): Promise<AdminOperationResult> {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${typeof window !== "undefined" ? window.location.origin : ""}/admin/reset-password`,
+    // Gunakan browser client PKCE — bukan klien legacy (implicit flow)
+    const { createClient: createBrowserClient } = await import("@/src/lib/supabaseBrowser");
+    const browserClient = createBrowserClient();
+
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const { error } = await browserClient.auth.resetPasswordForEmail(email, {
+      // Arahkan melalui /auth/callback agar PKCE code-exchange berjalan
+      // type=recovery → callback akan redirect ke next=/admin/reset-password
+      redirectTo: `${origin}/auth/callback?type=recovery&next=/admin/reset-password`,
     });
 
     if (error) return { success: false, error: error.message };
